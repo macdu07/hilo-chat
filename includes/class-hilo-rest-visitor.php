@@ -119,6 +119,7 @@ class HILO_REST_Visitor {
 	 * @return WP_REST_Response
 	 */
 	public static function status() {
+		HILO_Mailer::process_soon();
 		return rest_ensure_response( HILO_REST::status() );
 	}
 
@@ -213,6 +214,7 @@ class HILO_REST_Visitor {
 			);
 		}
 
+		HILO_Mailer::process_soon();
 		$after = absint( $request->get_param( 'after' ) );
 		$open  = (bool) $request->get_param( 'open' );
 

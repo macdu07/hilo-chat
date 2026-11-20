@@ -39,7 +39,7 @@ WordPress 6.9+, WooCommerce 11+, PHP 8.1+ con openssl. Sitio en HTTPS.
 
 ## Notas de operación
 - Tiempo real por *polling* adaptativo: 3 s con el chat abierto, 20 s minimizado y 60 s en segundo plano. Sin conversación no hay polling.
-- Los emails se programan con WP-Cron. Para que salgan puntuales, configura un cron real del servidor que llame a `wp-cron.php` cada minuto.
+- **No necesita cron del servidor.** Las respuestas a clientes que ya se fueron quedan en cola y se envían por email unos 2 minutos después (o apenas el agente cierra la app). La cola se procesa con el propio tráfico del chat (la app de agentes consulta cada pocos segundos y el widget del cliente también), después de enviar la respuesta, así que funciona en cualquier hosting, incluso con `DISABLE_WP_CRON`. WP-Cron queda solo como respaldo.
 - Los adjuntos se guardan en `uploads/hilo-chat/` con nombres aleatorios. Las imágenes se reencodean (sin EXIF/GPS) a un máximo de 1600 px.
 - Los chats resueltos se borran tras N días (configurable, 0 = nunca).
 

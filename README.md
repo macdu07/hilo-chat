@@ -40,11 +40,7 @@ Live support chat for WooCommerce that runs entirely on your own WordPress site:
 - **Visitor identity** is an HTTP-only cookie token; only its hash is stored. Logged-in customers are recognized automatically and can continue on another device.
 - **Attachments** (images and PDF, up to 8 MB) are stored in `uploads/hilo-chat/` with random names. Images are re-encoded to at most 1600 px, which also strips EXIF/GPS data.
 - **Caching.** All chat responses are sent with `Cache-Control: no-store`. The plugin whitelists its namespace in All-In-One WP Security's REST lock; with other firewalls that block anonymous REST requests, allow `hilo-chat/v1`.
-- **Emails** to customers who left are scheduled with WP-Cron. For punctual delivery on low-traffic sites, run a real system cron:
-
-```
-wp --path=/path/to/site cron event run --due-now
-```
+- **No server cron needed.** Replies to customers who already left are queued and emailed about 2 minutes later (or as soon as the agent closes the app). The queue is drained by the chat's own traffic (agent app sync every few seconds, visitor polling) after the response is sent, so it works on any host, even with `DISABLE_WP_CRON`. WP-Cron is kept only as a backup.
 
 ## Extensibility
 

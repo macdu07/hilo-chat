@@ -102,6 +102,7 @@ class HILO_REST_Agent {
 		$visible = (bool) $request->get_param( 'visible' );
 
 		HILO_Presence::heartbeat( $user_id, $visible );
+		HILO_Mailer::process_soon();
 
 		$out = array(
 			'now'           => time(),
@@ -399,6 +400,8 @@ class HILO_REST_Agent {
 		}
 		if ( $request->get_param( 'hidden' ) ) {
 			HILO_Presence::went_hidden( $user_id );
+			// The agent closed or left the app: send the replies waiting for away visitors now.
+			HILO_Mailer::process_soon( true );
 		}
 		return rest_ensure_response(
 			array(

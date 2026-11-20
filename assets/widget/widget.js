@@ -85,7 +85,8 @@
 		down: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 		send: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.4 11.2 18.7 4.6c.8-.4 1.6.4 1.2 1.2l-6.6 14.3c-.4.8-1.5.7-1.7-.1l-1.3-5.2a1 1 0 0 0-.7-.7l-5.2-1.3c-.8-.2-.9-1.3-.1-1.7z" fill="currentColor"/></svg>',
 		clip: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5 12.4 19a5 5 0 0 1-7.1-7.1l7.8-7.8a3.3 3.3 0 0 1 4.7 4.7l-7.6 7.6a1.7 1.7 0 0 1-2.4-2.4l7-7" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-		file: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>'
+		file: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
+		wa: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24a8.2 8.2 0 0 1 8.24 8.25c0 4.54-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.24-.64.8-.78.97-.15.16-.29.18-.54.06-.25-.13-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.15.17-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.22.25-.86.85-.86 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.15-1.18-.06-.1-.22-.16-.47-.28z"/></svg>'
 	};
 
 	/* ------------------------------------------------------------------ *
@@ -126,8 +127,25 @@
 	ui.badge = el('span', { class: 'hc-badge', 'aria-hidden': 'true' });
 	ui.launcher = el('button', {
 		class: 'hc-launcher', type: 'button', 'aria-label': __('Open chat', 'hilo-chat'), 'aria-expanded': 'false',
-		onclick: function () { toggle(); }
-	}, [el('span', { class: 'hc-launcher-icon hc-i-chat', html: ICON.chat }), el('span', { class: 'hc-launcher-icon hc-i-close', html: ICON.down }), ui.badge]);
+		'aria-haspopup': CFG.whatsapp ? 'menu' : null,
+		onclick: function () { onLauncher(); }
+	}, [el('span', { class: 'hc-launcher-icon hc-i-chat', html: ICON.chat }), el('span', { class: 'hc-launcher-icon hc-i-close', html: ICON.down }), el('span', { class: 'hc-launcher-icon hc-i-x', html: ICON.close }), ui.badge]);
+
+	// Speed dial: chat or WhatsApp (only when WhatsApp is configured).
+	if (CFG.whatsapp) {
+		ui.dialBadge = el('span', { class: 'hc-dial-badge', 'aria-hidden': 'true' });
+		ui.dialStatus = el('span', { class: 'hc-dial-sub' });
+		ui.dialChat = el('button', { class: 'hc-dial-item', type: 'button', role: 'menuitem', onclick: function () { toggle(true); } }, [
+			el('span', { class: 'hc-dial-icon hc-dial-icon--chat', html: ICON.chat }),
+			el('span', { class: 'hc-dial-text' }, [el('span', { class: 'hc-dial-title', text: CFG.title || 'Chat' }), ui.dialStatus]),
+			ui.dialBadge
+		]);
+		ui.dialWa = el('button', { class: 'hc-dial-item', type: 'button', role: 'menuitem', onclick: function () { openWhatsApp(); } }, [
+			el('span', { class: 'hc-dial-icon hc-dial-icon--wa', html: ICON.wa }),
+			el('span', { class: 'hc-dial-text' }, [el('span', { class: 'hc-dial-title', text: CFG.whatsapp.label || 'WhatsApp' }), el('span', { class: 'hc-dial-sub', text: 'WhatsApp' })])
+		]);
+		ui.dial = el('div', { class: 'hc-dial', role: 'menu', hidden: true, 'aria-label': __('How would you like to contact us?', 'hilo-chat'), onkeydown: onDialKey }, [ui.dialChat, ui.dialWa]);
+	}
 
 	ui.statusDot = el('span', { class: 'hc-dot' });
 	ui.statusText = el('span', { class: 'hc-status-text', text: '' });
@@ -176,13 +194,13 @@
 	// Greeting teaser next to the launcher.
 	ui.teaserText = el('span', { class: 'hc-teaser-text' });
 	ui.teaser = el('div', { class: 'hc-teaser', hidden: true, role: 'status' }, [
-		el('button', { class: 'hc-teaser-body', type: 'button', onclick: function () { hideTeaser(); toggle(true); } }, [
+		el('button', { class: 'hc-teaser-body', type: 'button', onclick: function () { hideTeaser(); if (CFG.whatsapp) toggleDial(true); else toggle(true); } }, [
 			el('span', { class: 'hc-teaser-avatar', 'aria-hidden': 'true', text: (CFG.brand || 'C').trim().charAt(0).toUpperCase() }),
 			el('span', { class: 'hc-teaser-content' }, [el('span', { class: 'hc-teaser-from', text: CFG.team || CFG.brand || '' }), ui.teaserText])
 		]),
 		el('button', { class: 'hc-teaser-close', type: 'button', 'aria-label': __('Close message', 'hilo-chat'), html: ICON.close, onclick: function (e) { e.stopPropagation(); dismissTeaser(); } })
 	]);
-	ui.wrap = el('div', { class: 'hc-root' + (CFG.position === 'left' ? ' hc-left' : '') }, [ui.panel, ui.teaser, ui.launcher]);
+	ui.wrap = el('div', { class: 'hc-root' + (CFG.position === 'left' ? ' hc-left' : '') }, [ui.panel, ui.teaser, ui.dial || null, ui.launcher]);
 
 	root.appendChild(ui.css);
 	root.appendChild(ui.wrap);
@@ -316,6 +334,7 @@
 		var n = S.open ? 0 : S.unread;
 		ui.badge.textContent = n > 9 ? '9+' : (n ? String(n) : '');
 		ui.badge.classList.toggle('is-on', n > 0);
+		if (ui.dialBadge) { ui.dialBadge.textContent = n > 9 ? '9+' : (n ? String(n) : ''); ui.dialBadge.classList.toggle('is-on', n > 0); }
 		ui.launcher.setAttribute('aria-label', n ? fmt(__('Open chat, %d new messages', 'hilo-chat'), n) : __('Open chat', 'hilo-chat'));
 	}
 
@@ -342,6 +361,7 @@
 		ui.launcher.setAttribute('aria-label', open ? __('Minimize chat', 'hilo-chat') : __('Open chat', 'hilo-chat'));
 		if (open) {
 			hideTeaser();
+			toggleDial(false, true);
 			ui.panel.hidden = false;
 			requestAnimationFrame(function () { ui.panel.classList.add('is-visible'); });
 			S.unread = 0;
@@ -364,14 +384,78 @@
 	}
 
 	root.addEventListener('keydown', function (e) {
-		if (e.key === 'Escape' && S.open) { e.stopPropagation(); toggle(false); }
+		if (e.key !== 'Escape') return;
+		if (S.dial) { e.stopPropagation(); toggleDial(false); return; }
+		if (S.open) { e.stopPropagation(); toggle(false); }
 	});
+
+	/* ------------------------------------------------------------------ *
+	 * Launcher, speed dial and WhatsApp
+	 * ------------------------------------------------------------------ */
+	function onLauncher() {
+		if (S.open) return toggle(false);
+		if (CFG.whatsapp) return toggleDial();
+		toggle();
+	}
+
+	function renderDialStatus() {
+		if (!ui.dialStatus) return;
+		var st = S.status;
+		ui.dialStatus.textContent = st ? (st.online ? __('Online', 'hilo-chat') : __('Offline · we will reply by email', 'hilo-chat')) : (CFG.team || '');
+		ui.dialStatus.classList.toggle('is-online', !!(st && st.online));
+	}
+
+	function toggleDial(force, silent) {
+		if (!ui.dial) return;
+		var open = typeof force === 'boolean' ? force : !S.dial;
+		if (open === !!S.dial) return;
+		S.dial = open;
+		ui.wrap.classList.toggle('is-dial', open);
+		ui.launcher.setAttribute('aria-expanded', String(open));
+		ui.launcher.setAttribute('aria-label', open ? __('Close menu', 'hilo-chat') : __('Open chat', 'hilo-chat'));
+		if (open) {
+			hideTeaser();
+			renderDialStatus();
+			if (!S.status) refreshStatus().then(renderDialStatus);
+			ui.dial.hidden = false;
+			requestAnimationFrame(function () { requestAnimationFrame(function () { ui.dial.classList.add('is-visible'); }); });
+			setTimeout(function () { ui.dialChat.focus({ preventScroll: true }); }, 60);
+		} else {
+			ui.dial.classList.remove('is-visible');
+			setTimeout(function () { if (!S.dial) ui.dial.hidden = true; }, 200);
+			if (!silent) ui.launcher.focus({ preventScroll: true });
+			renderBadge();
+		}
+	}
+
+	function onDialKey(e) {
+		if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+		e.preventDefault();
+		var items = [ui.dialChat, ui.dialWa];
+		var i = items.indexOf(root.activeElement);
+		items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length].focus();
+	}
+
+	// Close the dial when clicking anywhere outside the widget.
+	document.addEventListener('click', function (e) {
+		if (S.dial && e.composedPath && e.composedPath().indexOf(host) === -1) toggleDial(false, true);
+	});
+
+	function openWhatsApp() {
+		var wa = CFG.whatsapp;
+		if (!wa) return;
+		var text = String(wa.message || '').replace(/\{page\}/g, location.href).replace(/\{title\}/g, document.title);
+		var url = 'https://wa.me/' + wa.number + (text ? '?text=' + encodeURIComponent(text) : '');
+		window.open(url, '_blank', 'noopener');
+		try { if (window.dataLayer && window.dataLayer.push) window.dataLayer.push({ event: 'hilo_whatsapp_click', hilo_page: location.href }); } catch (err) {}
+		toggleDial(false, true);
+	}
 
 	/* ------------------------------------------------------------------ *
 	 * Networking
 	 * ------------------------------------------------------------------ */
 	function refreshStatus() {
-		return api('GET', 'status').then(function (st) { S.status = st; render(); }).catch(function () {});
+		return api('GET', 'status').then(function (st) { S.status = st; render(); renderDialStatus(); }).catch(function () {});
 	}
 
 	function applyConversation(conv) {
@@ -622,7 +706,7 @@
 		var wait = Math.max(2, t.delay || 8) * 1000;
 		teaserTimer = setTimeout(function tryShow() {
 			if (document.hidden) { document.addEventListener('visibilitychange', function once() { document.removeEventListener('visibilitychange', once); teaserTimer = setTimeout(tryShow, 1500); }); return; }
-			if (S.open || S.conv) return;
+			if (S.open || S.conv || S.dial) return;
 			showTeaser();
 		}, wait);
 	}
@@ -666,10 +750,12 @@
 			if (location.hash === '#hilo-open') { history.replaceState(null, '', location.pathname + location.search); toggle(true); }
 		});
 		// Public API: HiloChat.open() for custom buttons ("¿Necesitas ayuda?").
-		window.HiloChat = { open: function () { toggle(true); }, close: function () { toggle(false); }, toggle: function () { toggle(); } };
+		window.HiloChat = { open: function () { toggle(true); }, close: function () { toggle(false); }, toggle: function () { toggle(); }, whatsapp: openWhatsApp };
 		document.addEventListener('click', function (e) {
 			var trigger = e.target && e.target.closest && e.target.closest('[data-hilo-chat-open], a[href="#hilo-open"]');
-			if (trigger) { e.preventDefault(); toggle(true); }
+			if (trigger) { e.preventDefault(); toggle(true); return; }
+			var waTrigger = CFG.whatsapp && e.target && e.target.closest && e.target.closest('[data-hilo-whatsapp]');
+			if (waTrigger) { e.preventDefault(); openWhatsApp(); }
 		});
 	}
 })();

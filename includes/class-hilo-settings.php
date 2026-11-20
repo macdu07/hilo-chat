@@ -55,6 +55,10 @@ class HILO_Settings {
 			'teaser_enabled'   => true,
 			'teaser_text'      => '',
 			'teaser_delay'     => 8,
+			'whatsapp_enabled' => false,
+			'whatsapp_number'  => '',
+			'whatsapp_message' => '',
+			'whatsapp_label'   => '',
 			'push_subject'     => get_option( 'admin_email' ),
 			'hours'            => array(
 				1 => $day,
@@ -124,6 +128,38 @@ class HILO_Settings {
 			'online_text'  => __( 'Online · we reply in minutes', 'hilo-chat' ),
 			'offline_text' => __( 'Leave us a message and we will reply by email as soon as possible.', 'hilo-chat' ),
 			'teaser_text'  => __( 'Any questions? We are here to help 💬', 'hilo-chat' ),
+			'whatsapp_message' => __( 'Hi! I have a question.', 'hilo-chat' ),
+			'whatsapp_label'   => __( 'Write to us on WhatsApp', 'hilo-chat' ),
+		);
+	}
+
+	/**
+	 * WhatsApp number as digits (country code included), or '' when missing or invalid.
+	 *
+	 * @param string|null $raw Optional raw value; defaults to the saved setting.
+	 * @return string
+	 */
+	public static function whatsapp_number( $raw = null ) {
+		$digits = preg_replace( '/\D+/', '', null === $raw ? (string) self::raw( 'whatsapp_number' ) : (string) $raw );
+		$digits = ltrim( $digits, '0' );
+		$len    = strlen( $digits );
+		return ( $len >= 7 && $len <= 15 ) ? $digits : '';
+	}
+
+	/**
+	 * WhatsApp config for the widget, or null when it should not show.
+	 *
+	 * @return array|null
+	 */
+	public static function whatsapp() {
+		$number = self::whatsapp_number();
+		if ( ! self::get( 'whatsapp_enabled' ) || '' === $number ) {
+			return null;
+		}
+		return array(
+			'number'  => $number,
+			'message' => (string) self::get( 'whatsapp_message' ),
+			'label'   => (string) self::get( 'whatsapp_label' ),
 		);
 	}
 

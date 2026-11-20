@@ -75,6 +75,13 @@
 		var brand = form.elements.brand_name;
 		var av = preview.querySelector('.hilo-preview__avatar');
 		if (av && brand) av.textContent = (brand.value || 'C').trim().charAt(0).toUpperCase();
+		var wa = form.elements.whatsapp_enabled;
+		preview.classList.toggle('has-wa', !!(wa && wa.checked));
+		var waSection = document.getElementById('hilo-whatsapp');
+		if (waSection && wa) waSection.classList.toggle('is-off', !wa.checked);
+		var waLabel = preview.querySelector('.hilo-preview__wa-label');
+		var waField = form.elements.whatsapp_label;
+		if (waLabel && waField) waLabel.textContent = waField.value || waField.placeholder;
 		document.querySelectorAll('[data-hilo-hex]').forEach(function (code) {
 			var f = form.elements[code.getAttribute('data-hilo-hex')];
 			if (f) code.textContent = f.value;

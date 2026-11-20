@@ -56,6 +56,7 @@ class HILO_Widget {
 			'greeting'  => HILO_Settings::get( 'greeting' ),
 			'locale'    => HILO_I18n::js_locale(),
 			'i18n'      => HILO_I18n::js_strings( 'assets/widget/widget.js' ),
+			'whatsapp'  => HILO_Settings::whatsapp(),
 			'teaser'    => HILO_Settings::get( 'teaser_enabled' ) && '' !== trim( (string) HILO_Settings::get( 'teaser_text' ) ) ? array(
 				'text'  => HILO_Settings::get( 'teaser_text' ),
 				'delay' => (int) HILO_Settings::get( 'teaser_delay', 8 ),

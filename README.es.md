@@ -11,6 +11,7 @@ Chat de soporte en vivo para WooCommerce, sin servicios externos:
 - **Respuestas rápidas** (`/atajo` en el compositor, admite `{name}` para el nombre del cliente).
 - **Horario de atención** (también 24/7 o 24 h por día) y respuesta por **email** cuando el cliente ya se fue (con enlace para retomar el chat).
 - **Burbuja de saludo** junto al botón, una vez por visita.
+- **Opción de WhatsApp**: al activarla, el botón del chat se convierte en un pequeño menú donde el cliente elige el chat en vivo o WhatsApp (tu número, texto del botón y un mensaje predefinido con `{page}` / `{title}`). Si hay Google Tag Manager, cada clic se envía a `dataLayer` como `hilo_whatsapp_click`.
 - **Eliminar conversaciones resueltas**, una a una desde la app o todas de una vez (gestores de tienda), además de la purga automática.
 - **Bilingüe (inglés / español)**: el código está en inglés y trae traducción `es_ES`, que se usa también para cualquier otra variante de español (`es_CO`, `es_MX`…).
 
@@ -31,7 +32,7 @@ WordPress 6.9+, WooCommerce 11+, PHP 8.1+ con openssl. Sitio en HTTPS.
 - Las cadenas del JS se escriben como `__('Text', 'hilo-chat')`; `make-pot` las extrae y PHP envía al navegador solo las traducciones necesarias.
 
 ## Integración
-- Abrir el chat desde cualquier botón: `<a href="#hilo-open">¿Necesitas ayuda?</a>`, `data-hilo-chat-open` o `HiloChat.open()`.
+- Abrir el chat desde cualquier botón: `<a href="#hilo-open">¿Necesitas ayuda?</a>`, `data-hilo-chat-open` o `HiloChat.open()`. Con WhatsApp activado: `data-hilo-whatsapp` o `HiloChat.whatsapp()`.
 - Filtro `hilo_chat_show_widget` (bool) para ocultar el widget en ciertas páginas.
 - Filtro `hilo_chat_app_icons` para cambiar los iconos de la PWA.
 - Firewalls: el plugin añade `hilo-chat` a la lista blanca REST de All-In-One WP Security. Con otros firewalls que bloqueen la REST a anónimos, permite el namespace `hilo-chat/v1`.

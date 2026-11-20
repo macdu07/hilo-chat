@@ -456,3 +456,19 @@ body.hilo-screen #wpbody-content {
 @media (prefers-reduced-motion: reduce) {
 	.hilo-admin *, .hilo-admin *::before, .hilo-admin *::after { transition: none !important; }
 }
+
+/* WhatsApp ---------------------------------------------------------- */
+.hilo-admin input[aria-invalid="true"] { border-color: var(--hl-red) !important; box-shadow: 0 0 0 1px var(--hl-red) !important; }
+#hilo-whatsapp.is-off .hilo-fields { opacity: 0.5; }
+
+/* Preview: with WhatsApp on, show the speed dial instead of the open panel. */
+.hilo-preview__dial { position: absolute; right: 14px; bottom: 72px; display: none; flex-direction: column; align-items: flex-end; gap: 8px; }
+.hilo-preview.is-left .hilo-preview__dial { right: auto; left: 14px; align-items: flex-start; }
+.hilo-preview.has-wa .hilo-preview__dial { display: flex; }
+.hilo-preview.has-wa .hilo-preview__panel { display: none; }
+.hilo-preview__pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; color: var(--hl-ink); font-size: 12px; font-weight: 600; font-family: var(--pv-font-body, inherit); background: #fff; border-radius: 999px; box-shadow: 0 6px 16px -8px rgba(29, 39, 48, 0.4); }
+.hilo-preview__pill-icon { width: 24px; height: 24px; background: var(--pv-primary, #1f2937); border-radius: 50%; }
+.hilo-preview__pill-icon--wa { background: #25d366; }
+.hilo-preview.has-wa .hilo-preview__launcher::before,
+.hilo-preview.has-wa .hilo-preview__launcher::after { position: absolute; inset: auto; top: 50%; left: 50%; width: 16px; height: 2px; margin: -1px 0 0 -8px; content: ""; background: #fff; border-radius: 2px; transform: rotate(45deg); }
+.hilo-preview.has-wa .hilo-preview__launcher::before { transform: rotate(-45deg); }

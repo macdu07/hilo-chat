@@ -90,6 +90,10 @@ class HILO_Admin {
 			'teaser_enabled'   => ! empty( $in['teaser_enabled'] ),
 			'teaser_text'      => sanitize_text_field( $in['teaser_text'] ?? '' ),
 			'teaser_delay'     => min( 120, max( 2, absint( $in['teaser_delay'] ?? 8 ) ) ),
+			'whatsapp_enabled' => ! empty( $in['whatsapp_enabled'] ),
+			'whatsapp_number'  => preg_replace( '/[^0-9+\-\s()]/', '', (string) ( $in['whatsapp_number'] ?? '' ) ),
+			'whatsapp_message' => sanitize_textarea_field( $in['whatsapp_message'] ?? '' ),
+			'whatsapp_label'   => sanitize_text_field( $in['whatsapp_label'] ?? '' ),
 			'hours'            => array(),
 		);
 		for ( $d = 0; $d < 7; $d++ ) {
@@ -263,6 +267,12 @@ class HILO_Admin {
 					<button type="button" class="hilo-feedback__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'hilo-chat' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
 				</div>
 			<?php endif; ?>
+			<?php if ( ! empty( $s['whatsapp_enabled'] ) && '' === HILO_Settings::whatsapp_number() ) : ?>
+				<div class="hilo-feedback hilo-feedback--warning" role="alert">
+					<span class="dashicons dashicons-warning" aria-hidden="true"></span>
+					<div class="hilo-feedback__copy"><?php echo wp_kses( __( '<strong>WhatsApp is on but the number is not valid,</strong> so it is not shown. Enter it with the country code.', 'hilo-chat' ), array( 'strong' => array() ) ); ?> <a href="#hilo-whatsapp"><?php esc_html_e( 'Fix it', 'hilo-chat' ); ?></a></div>
+				</div>
+			<?php endif; ?>
 			<?php if ( $s['enabled'] && $s['test_mode'] ) : ?>
 				<div class="hilo-feedback hilo-feedback--warning">
 					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
@@ -291,6 +301,25 @@ class HILO_Admin {
 								<label class="hilo-choice"><input type="radio" name="position" value="right" <?php checked( 'right', $s['position'] ); ?>><span class="hilo-choice__art hilo-choice__art--right" aria-hidden="true"></span><span><strong><?php esc_html_e( 'Right', 'hilo-chat' ); ?></strong><?php esc_html_e( 'Bottom right corner', 'hilo-chat' ); ?></span></label>
 								<label class="hilo-choice"><input type="radio" name="position" value="left" <?php checked( 'left', $s['position'] ); ?>><span class="hilo-choice__art hilo-choice__art--left" aria-hidden="true"></span><span><strong><?php esc_html_e( 'Left', 'hilo-chat' ); ?></strong><?php esc_html_e( 'Bottom left corner', 'hilo-chat' ); ?></span></label>
 							</fieldset>
+						</div>
+						<div class="hilo-panel__section" id="hilo-whatsapp">
+							<?php self::toggle( 'whatsapp_enabled', ! empty( $s['whatsapp_enabled'] ), __( 'WhatsApp', 'hilo-chat' ), __( 'Customers choose between the live chat and WhatsApp from the same button.', 'hilo-chat' ), array( 'id' => 'hilo-wa-toggle' ) ); ?>
+							<div class="hilo-fields" style="margin-top:16px">
+								<div class="hilo-field">
+									<label for="hilo-wa-number"><?php esc_html_e( 'WhatsApp number', 'hilo-chat' ); ?></label>
+									<input id="hilo-wa-number" type="text" inputmode="tel" name="whatsapp_number" value="<?php echo esc_attr( $s['whatsapp_number'] ); ?>" placeholder="57 300 123 4567"<?php echo ( ! empty( $s['whatsapp_enabled'] ) && '' === HILO_Settings::whatsapp_number() ) ? ' aria-invalid="true"' : ''; ?>>
+									<p><?php esc_html_e( 'Include the country code. Spaces, + and dashes are fine.', 'hilo-chat' ); ?></p>
+								</div>
+								<div class="hilo-field">
+									<label for="hilo-wa-label"><?php esc_html_e( 'Button text', 'hilo-chat' ); ?></label>
+									<input id="hilo-wa-label" type="text" name="whatsapp_label" value="<?php echo esc_attr( $s['whatsapp_label'] ); ?>" placeholder="<?php echo esc_attr( $texts['whatsapp_label'] ); ?>" maxlength="60">
+								</div>
+								<div class="hilo-field hilo-field--full">
+									<label for="hilo-wa-message"><?php esc_html_e( 'Pre-filled message', 'hilo-chat' ); ?></label>
+									<textarea id="hilo-wa-message" rows="2" name="whatsapp_message" placeholder="<?php echo esc_attr( $texts['whatsapp_message'] ); ?>"><?php echo esc_textarea( $s['whatsapp_message'] ); ?></textarea>
+									<p><?php echo wp_kses( __( 'Use <code>{page}</code> for the page link and <code>{title}</code> for its title, so you know which product they are asking about.', 'hilo-chat' ), array( 'code' => array() ) ); ?></p>
+								</div>
+							</div>
 						</div>
 					</section>
 
@@ -380,6 +409,10 @@ class HILO_Admin {
 										<span class="hilo-preview__link"><?php esc_html_e( 'See shipping options', 'hilo-chat' ); ?></span>
 										<span class="hilo-preview__send"></span>
 									</div>
+								</div>
+								<div class="hilo-preview__dial">
+									<span class="hilo-preview__pill"><span class="hilo-preview__pill-icon"></span><?php esc_html_e( 'Chat', 'hilo-chat' ); ?></span>
+									<span class="hilo-preview__pill"><span class="hilo-preview__pill-icon hilo-preview__pill-icon--wa"></span><span class="hilo-preview__wa-label"></span></span>
 								</div>
 								<span class="hilo-preview__launcher"></span>
 							</div>

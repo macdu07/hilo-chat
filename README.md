@@ -13,6 +13,7 @@ Live support chat for WooCommerce that runs entirely on your own WordPress site:
 - **WooCommerce context** next to each chat: current page, browsing journey, live cart and the customer's latest orders (HPOS compatible).
 - **Quick replies** inserted by typing `/shortcut`; `{name}` is replaced with the customer's first name.
 - **Business hours** (weekly schedule, 24 h days or 24/7). Outside hours, or when nobody is available, visitors leave a message and the agent's reply is **emailed** to them with a link to resume the chat.
+- **WhatsApp option**: turn it on and the chat button becomes a small menu where customers choose the live chat or WhatsApp (your number, button text and a pre-filled message with `{page}` / `{title}`). Clicks are pushed to `dataLayer` as `hilo_whatsapp_click` when Google Tag Manager is present.
 - **Delete resolved conversations** one by one from the app, all at once (store managers), or automatically after N days.
 - **Branding settings**: brand name, colors, fonts, email logo and app icon, with a live widget preview. Defaults are neutral, so the plugin fits any store.
 - **Bilingual**: English source strings with a full Spanish translation, used for every Spanish locale (`es_ES`, `es_CO`, `es_MX`…). The widget follows the site language; the agent app follows each agent's profile language.
@@ -52,7 +53,8 @@ Open the chat from any link or button:
 ```html
 <a href="#hilo-open">Need help?</a>
 <button data-hilo-chat-open>Chat with us</button>
-<script>HiloChat.open();</script>
+<button data-hilo-whatsapp>WhatsApp</button>  <!-- when WhatsApp is enabled -->
+<script>HiloChat.open(); /* or HiloChat.whatsapp(); */</script>
 ```
 
 Filters:

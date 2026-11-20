@@ -54,6 +54,10 @@ class HILO_Widget {
 			'title'     => HILO_Settings::get( 'title' ),
 			'team'      => HILO_Settings::team_name(),
 			'greeting'  => HILO_Settings::get( 'greeting' ),
+			'teaser'    => HILO_Settings::get( 'teaser_enabled' ) && '' !== trim( (string) HILO_Settings::get( 'teaser_text' ) ) ? array(
+				'text'  => HILO_Settings::get( 'teaser_text' ),
+				'delay' => (int) HILO_Settings::get( 'teaser_delay', 8 ),
+			) : null,
 			'position'  => 'left' === HILO_Settings::get( 'position' ) ? 'left' : 'right',
 			'testMode'  => (bool) HILO_Settings::get( 'test_mode' ),
 			'user'      => $user->ID ? array(

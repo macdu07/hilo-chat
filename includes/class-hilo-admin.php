@@ -84,6 +84,9 @@ class HILO_Admin {
 			'push_subject'     => sanitize_email( $in['push_subject'] ?? '' ) ?: get_option( 'admin_email' ),
 			'retention_days'   => max( 0, absint( $in['retention_days'] ?? 180 ) ),
 			'always_open'      => ! empty( $in['always_open'] ),
+			'teaser_enabled'   => ! empty( $in['teaser_enabled'] ),
+			'teaser_text'      => sanitize_text_field( $in['teaser_text'] ?? '' ),
+			'teaser_delay'     => min( 120, max( 2, absint( $in['teaser_delay'] ?? 8 ) ) ),
 			'hours'            => array(),
 		);
 		for ( $d = 0; $d < 7; $d++ ) {
@@ -163,6 +166,12 @@ class HILO_Admin {
 						<tr><th><label for="hilo-title">Título del widget</label></th><td><input id="hilo-title" class="regular-text" name="title" value="<?php echo esc_attr( $s['title'] ); ?>"></td></tr>
 						<tr><th><label for="hilo-sub">Nombre del equipo</label></th><td><input id="hilo-sub" class="regular-text" name="subtitle" value="<?php echo esc_attr( $s['subtitle'] ); ?>" placeholder="<?php echo esc_attr( 'Equipo ' . HILO_Settings::brand() ); ?>"></td></tr>
 						<tr><th><label for="hilo-greet">Saludo</label></th><td><textarea id="hilo-greet" class="large-text" rows="2" name="greeting"><?php echo esc_textarea( $s['greeting'] ); ?></textarea></td></tr>
+						<tr><th>Burbuja de saludo</th><td>
+							<label><input type="checkbox" name="teaser_enabled" value="1" <?php checked( ! empty( $s['teaser_enabled'] ) ); ?>> Mostrar un mensaje junto al botón del chat</label>
+							<p><input class="large-text" name="teaser_text" value="<?php echo esc_attr( $s['teaser_text'] ); ?>" maxlength="140" aria-label="Texto de la burbuja"></p>
+							<p><label>Aparece a los <input type="number" min="2" max="120" name="teaser_delay" value="<?php echo (int) $s['teaser_delay']; ?>" style="width:70px"> segundos</label></p>
+							<p class="description">Se muestra una vez por visita a quien todavía no ha abierto el chat. Se oculta sola a los 15 segundos. Si el cliente la cierra, no vuelve a aparecer durante 3 días.</p>
+						</td></tr>
 						<tr><th><label for="hilo-on">Texto en línea</label></th><td><input id="hilo-on" class="large-text" name="online_text" value="<?php echo esc_attr( $s['online_text'] ); ?>"></td></tr>
 						<tr><th><label for="hilo-off">Texto fuera de línea</label></th><td><textarea id="hilo-off" class="large-text" rows="2" name="offline_text"><?php echo esc_textarea( $s['offline_text'] ); ?></textarea></td></tr>
 						<tr><th>Posición</th><td>

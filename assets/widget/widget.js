@@ -164,7 +164,16 @@
 
 	ui.footer = el('div', { class: 'hc-footer' }, [ui.composeError, ui.composer]);
 	ui.panel = el('section', { class: 'hc-panel', role: 'dialog', 'aria-modal': 'false', 'aria-label': CFG.title || 'Chat', hidden: true }, [ui.header, ui.scroller, ui.intro, ui.footer]);
-	ui.wrap = el('div', { class: 'hc-root' + (CFG.position === 'left' ? ' hc-left' : '') }, [ui.panel, ui.launcher]);
+	// Greeting teaser next to the launcher.
+	ui.teaserText = el('span', { class: 'hc-teaser-text' });
+	ui.teaser = el('div', { class: 'hc-teaser', hidden: true, role: 'status' }, [
+		el('button', { class: 'hc-teaser-body', type: 'button', onclick: function () { hideTeaser(); toggle(true); } }, [
+			el('span', { class: 'hc-teaser-avatar', 'aria-hidden': 'true', text: (CFG.brand || 'C').trim().charAt(0).toUpperCase() }),
+			el('span', { class: 'hc-teaser-content' }, [el('span', { class: 'hc-teaser-from', text: CFG.team || CFG.brand || '' }), ui.teaserText])
+		]),
+		el('button', { class: 'hc-teaser-close', type: 'button', 'aria-label': 'Cerrar mensaje', html: ICON.close, onclick: function (e) { e.stopPropagation(); dismissTeaser(); } })
+	]);
+	ui.wrap = el('div', { class: 'hc-root' + (CFG.position === 'left' ? ' hc-left' : '') }, [ui.panel, ui.teaser, ui.launcher]);
 
 	root.appendChild(ui.css);
 	root.appendChild(ui.wrap);
@@ -323,6 +332,7 @@
 		ui.launcher.setAttribute('aria-expanded', String(open));
 		ui.launcher.setAttribute('aria-label', open ? 'Minimizar chat' : 'Abrir chat');
 		if (open) {
+			hideTeaser();
 			ui.panel.hidden = false;
 			requestAnimationFrame(function () { ui.panel.classList.add('is-visible'); });
 			S.unread = 0;
@@ -583,6 +593,49 @@
 	/* ------------------------------------------------------------------ *
 	 * Boot
 	 * ------------------------------------------------------------------ */
+	/* ------------------------------------------------------------------ *
+	 * Greeting teaser (once per visit)
+	 * ------------------------------------------------------------------ */
+	var teaserTimer = null, teaserHideTimer = null;
+	function sessionFlag(key, val) {
+		try {
+			if (val === undefined) return sessionStorage.getItem(key);
+			sessionStorage.setItem(key, val);
+		} catch (e) { return '1'; }
+	}
+	function scheduleTeaser() {
+		var t = CFG.teaser;
+		if (!t || S.conv || S.saved.has || S.open) return;
+		if (sessionFlag('hilo_teaser')) return;
+		if (S.saved.teaserOff && Date.now() - S.saved.teaserOff < 3 * 864e5) return;
+		var wait = Math.max(2, t.delay || 8) * 1000;
+		teaserTimer = setTimeout(function tryShow() {
+			if (document.hidden) { document.addEventListener('visibilitychange', function once() { document.removeEventListener('visibilitychange', once); teaserTimer = setTimeout(tryShow, 1500); }); return; }
+			if (S.open || S.conv) return;
+			showTeaser();
+		}, wait);
+	}
+	function showTeaser() {
+		sessionFlag('hilo_teaser', '1');
+		ui.teaserText.textContent = CFG.teaser.text;
+		ui.teaser.hidden = false;
+		requestAnimationFrame(function () { requestAnimationFrame(function () { ui.teaser.classList.add('is-visible'); ui.launcher.classList.add('is-calling'); }); });
+		teaserHideTimer = setTimeout(hideTeaser, 15000);
+	}
+	function hideTeaser() {
+		clearTimeout(teaserTimer);
+		clearTimeout(teaserHideTimer);
+		ui.launcher.classList.remove('is-calling');
+		if (ui.teaser.hidden) return;
+		ui.teaser.classList.remove('is-visible');
+		setTimeout(function () { ui.teaser.hidden = true; }, 300);
+	}
+	function dismissTeaser() {
+		S.saved.teaserOff = Date.now();
+		store(false, S.saved);
+		hideTeaser();
+	}
+
 	function boot() {
 		render();
 		var wantsOpen = location.hash === '#hilo-open';
@@ -593,7 +646,10 @@
 		if (S.saved.has || CFG.user || wantsOpen) {
 			poll(true).then(function () {
 				if (wantsOpen || (S.saved.open && S.conv)) toggle(true);
+				else scheduleTeaser();
 			});
+		} else {
+			scheduleTeaser();
 		}
 		window.addEventListener('hashchange', function () {
 			if (location.hash === '#hilo-open') { history.replaceState(null, '', location.pathname + location.search); toggle(true); }

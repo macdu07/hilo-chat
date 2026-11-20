@@ -317,3 +317,87 @@ svg { width: 100%; height: 100%; display: block; }
 @media (prefers-reduced-motion: reduce) {
 	*, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Greeting teaser ---------- */
+.hc-teaser {
+	position: fixed;
+	right: 20px;
+	bottom: 92px;
+	width: max-content;
+	max-width: min(300px, calc(100vw - 40px));
+	opacity: 0;
+	transform: translateY(12px) scale(.92);
+	transform-origin: bottom right;
+	transition: opacity .3s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1);
+	pointer-events: none;
+}
+.hc-left .hc-teaser { right: auto; left: 20px; transform-origin: bottom left; }
+.hc-teaser.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+.hc-teaser-body {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	width: 100%;
+	padding: 12px 34px 12px 12px;
+	border: 0;
+	border-radius: 16px 16px 4px 16px;
+	background: var(--hc-bg);
+	color: var(--hc-ink);
+	text-align: left;
+	cursor: pointer;
+	box-shadow: 0 14px 34px -10px rgba(15, 23, 42, .3), 0 2px 6px rgba(15, 23, 42, .08);
+	transition: transform .2s var(--hc-ease), box-shadow .2s;
+}
+.hc-left .hc-teaser-body { border-radius: 16px 16px 16px 4px; }
+.hc-teaser-body:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -10px rgba(15, 23, 42, .34), 0 2px 6px rgba(15, 23, 42, .08); }
+.hc-teaser-body:focus-visible { outline: 3px solid var(--hc-accent); outline-offset: 2px; }
+.hc-teaser-avatar {
+	width: 34px;
+	height: 34px;
+	flex: none;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	background: var(--hc-primary);
+	color: #fff;
+	font-family: var(--hc-font-heading, inherit);
+	font-size: 15px;
+}
+.hc-teaser-content { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hc-teaser-from { font-size: 12px; color: var(--hc-muted); }
+.hc-teaser-text { font-size: 14.5px; line-height: 1.4; }
+.hc-teaser-close {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	width: 26px;
+	height: 26px;
+	padding: 6px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--hc-muted);
+	cursor: pointer;
+	opacity: .7;
+}
+.hc-teaser-close:hover { opacity: 1; background: var(--hc-soft); }
+
+/* A single soft ring around the launcher while the teaser shows. */
+.hc-launcher.is-calling::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0 color-mix(in srgb, var(--hc-primary) 45%, transparent);
+	animation: hc-ring 2.4s ease-out 2;
+	pointer-events: none;
+}
+@keyframes hc-ring {
+	0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--hc-primary) 45%, transparent); }
+	70%, 100% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--hc-primary) 0%, transparent); }
+}
+
+@media (max-width: 520px) {
+	.hc-teaser { right: 16px; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 68px); }
+	.hc-left .hc-teaser { left: 16px; }
+}

@@ -51,6 +51,9 @@ class HILO_Settings {
 			'position'         => 'right',
 			'retention_days'   => 180,
 			'always_open'      => false,
+			'teaser_enabled'   => true,
+			'teaser_text'      => '¿Tienes alguna duda? Estamos aquí para ayudarte 💬',
+			'teaser_delay'     => 8,
 			'push_subject'     => get_option( 'admin_email' ),
 			'hours'            => array(
 				1 => $day,

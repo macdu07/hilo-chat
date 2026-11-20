@@ -10,7 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-20T03:15:33+01:00\n"
+"POT-Creation-Date: 2026-11-20T03:45:36+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: hilo-chat\n"
@@ -36,296 +36,426 @@ msgstr "Mauricio Correa"
 msgid "https://mauriciocorread.com/"
 msgstr "https://mauriciocorread.com/"
 
-#: includes/class-hilo-admin.php:31
+#: includes/class-hilo-admin.php:33
 #: templates/agent-app.php:19
 #: assets/agent/app.js:895
 msgid "Chats"
 msgstr "Chats"
 
-#: includes/class-hilo-admin.php:51
+#: includes/class-hilo-admin.php:53
 msgid "Settings"
 msgstr "Ajustes"
 
-#: includes/class-hilo-admin.php:60
-#: includes/class-hilo-admin.php:113
+#: includes/class-hilo-admin.php:62
+#: includes/class-hilo-admin.php:115
 msgid "Not allowed."
 msgstr "No autorizado."
 
+#: includes/class-hilo-admin.php:174
+msgid "App icon"
+msgstr "Icono de la app"
+
+#: includes/class-hilo-admin.php:176
+msgid "You have unsaved changes."
+msgstr "Tienes cambios sin guardar."
+
+#: includes/class-hilo-admin.php:177
+#: assets/agent/app.js:711
+msgid "Copied"
+msgstr "Copiado"
+
 #. translators: %s: store name.
-#: includes/class-hilo-admin.php:145
+#: includes/class-hilo-admin.php:219
 #: includes/class-hilo-settings.php:159
 #, php-format
 msgid "%s team"
 msgstr "Equipo %s"
 
-#: includes/class-hilo-admin.php:146
-msgid "Leave it empty to use the default text, translated automatically."
-msgstr "Déjalo vacío para usar el texto por defecto, traducido automáticamente."
+#: includes/class-hilo-admin.php:222
+msgid "Hidden"
+msgstr "Oculto"
 
-#: includes/class-hilo-admin.php:167
+#: includes/class-hilo-admin.php:224
+#: includes/class-hilo-admin.php:284
+msgid "Test mode"
+msgstr "Modo prueba"
+
+#: includes/class-hilo-admin.php:226
+msgid "Online now"
+msgstr "En línea ahora"
+
+#: includes/class-hilo-admin.php:228
+#: includes/class-hilo-admin.php:459
+#: assets/agent/app.js:1097
+msgid "Offline"
+msgstr "Desconectado"
+
+#: includes/class-hilo-admin.php:235
+msgid "Live support for your store. Customers write from the chat widget and your team answers from the agent app, on desktop or phone."
+msgstr "Soporte en vivo para tu tienda. Los clientes escriben desde el widget del chat y tu equipo responde desde la app de agentes, en el computador o el celular."
+
+#: includes/class-hilo-admin.php:240
+msgid "Open agent app"
+msgstr "Abrir app de agentes"
+
+#: includes/class-hilo-admin.php:249
 msgid "Settings saved."
 msgstr "Ajustes guardados."
 
+#: includes/class-hilo-admin.php:250
+#: includes/class-hilo-admin.php:263
+msgid "Dismiss"
+msgstr "Descartar"
+
 #. translators: %d: number of conversations.
-#: includes/class-hilo-admin.php:174
+#: includes/class-hilo-admin.php:260
 #, php-format
 msgid "%d resolved conversation deleted."
 msgid_plural "%d resolved conversations deleted."
 msgstr[0] "Se eliminó %d conversación resuelta."
 msgstr[1] "Se eliminaron %d conversaciones resueltas."
 
-#: includes/class-hilo-admin.php:179
+#: includes/class-hilo-admin.php:269
 msgid "<strong>Test mode is on:</strong> only users who can answer chats see the widget. Turn it off to show it to every visitor."
 msgstr "<strong>Modo prueba activo:</strong> solo los usuarios que pueden atender chats ven el widget. Desactívalo para mostrarlo a todos los visitantes."
 
-#: includes/class-hilo-admin.php:188
-msgid "General"
-msgstr "General"
+#: includes/class-hilo-admin.php:279
+msgid "Chat on the store"
+msgstr "Chat en la tienda"
 
-#: includes/class-hilo-admin.php:190
-msgid "Status"
-msgstr "Estado"
+#: includes/class-hilo-admin.php:280
+msgid "Choose who sees the chat button and where it sits."
+msgstr "Elige quién ve el botón del chat y dónde aparece."
 
-#: includes/class-hilo-admin.php:191
+#: includes/class-hilo-admin.php:283
 msgid "Show the chat on the store"
 msgstr "Mostrar el chat en la tienda"
 
-#: includes/class-hilo-admin.php:192
-msgid "Test mode (only agents see the widget)"
-msgstr "Modo prueba (solo los agentes ven el widget)"
+#: includes/class-hilo-admin.php:283
+msgid "Turn it off to hide the chat button everywhere."
+msgstr "Desactívalo para ocultar el botón del chat en todo el sitio."
 
-#: includes/class-hilo-admin.php:193
+#: includes/class-hilo-admin.php:284
+msgid "Only agents see the widget, so you can try it before customers do."
+msgstr "Solo los agentes ven el widget, así puedes probarlo antes que los clientes."
+
+#: includes/class-hilo-admin.php:285
 msgid "Hide on the checkout page"
 msgstr "Ocultar en la página de pago"
 
-#: includes/class-hilo-admin.php:195
+#: includes/class-hilo-admin.php:285
+msgid "Keeps the payment step free of distractions."
+msgstr "Mantiene el paso de pago libre de distracciones."
+
+#: includes/class-hilo-admin.php:289
+msgid "Position"
+msgstr "Posición"
+
+#: includes/class-hilo-admin.php:291
+msgid "Right"
+msgstr "Derecha"
+
+#: includes/class-hilo-admin.php:291
+msgid "Bottom right corner"
+msgstr "Esquina inferior derecha"
+
+#: includes/class-hilo-admin.php:292
+msgid "Left"
+msgstr "Izquierda"
+
+#: includes/class-hilo-admin.php:292
+msgid "Bottom left corner"
+msgstr "Esquina inferior izquierda"
+
+#: includes/class-hilo-admin.php:298
+msgid "Texts"
+msgstr "Textos"
+
+#: includes/class-hilo-admin.php:299
+msgid "Leave a field empty to use the default text, translated automatically into the store language."
+msgstr "Deja un campo vacío para usar el texto por defecto, traducido automáticamente al idioma de la tienda."
+
+#: includes/class-hilo-admin.php:301
 msgid "Brand name"
 msgstr "Nombre de la marca"
 
-#: includes/class-hilo-admin.php:196
-msgid "Widget title"
-msgstr "Título del widget"
-
-#: includes/class-hilo-admin.php:197
+#: includes/class-hilo-admin.php:302
 msgid "Team name"
 msgstr "Nombre del equipo"
 
-#: includes/class-hilo-admin.php:198
+#: includes/class-hilo-admin.php:303
+msgid "Widget title"
+msgstr "Título del widget"
+
+#: includes/class-hilo-admin.php:304
 #: includes/class-hilo-install.php:134
 msgid "Greeting"
 msgstr "Saludo"
 
-#: includes/class-hilo-admin.php:199
-msgid "Greeting bubble"
-msgstr "Burbuja de saludo"
+#: includes/class-hilo-admin.php:304
+msgid "first message customers see"
+msgstr "primer mensaje que ven los clientes"
 
-#: includes/class-hilo-admin.php:200
-msgid "Show a message next to the chat button"
-msgstr "Mostrar un mensaje junto al botón del chat"
-
-#: includes/class-hilo-admin.php:201
-msgid "Bubble text"
-msgstr "Texto de la burbuja"
-
-#. translators: %s: number input.
-#: includes/class-hilo-admin.php:206
-#, php-format
-msgid "Appears after %s seconds"
-msgstr "Aparece a los %s segundos"
-
-#: includes/class-hilo-admin.php:211
-msgid "Shown once per visit to people who have not opened the chat yet. It hides itself after 15 seconds; if the visitor closes it, it stays hidden for 3 days."
-msgstr "Se muestra una vez por visita a quien todavía no ha abierto el chat. Se oculta sola a los 15 segundos; si el visitante la cierra, no vuelve a aparecer durante 3 días."
-
-#: includes/class-hilo-admin.php:213
+#: includes/class-hilo-admin.php:305
 msgid "Online text"
 msgstr "Texto en línea"
 
-#: includes/class-hilo-admin.php:214
+#: includes/class-hilo-admin.php:306
 msgid "Offline text"
 msgstr "Texto fuera de línea"
 
-#: includes/class-hilo-admin.php:215
-msgid "Position"
-msgstr "Posición"
+#: includes/class-hilo-admin.php:309
+msgid "Greeting bubble"
+msgstr "Burbuja de saludo"
 
-#: includes/class-hilo-admin.php:216
-msgid "Right"
-msgstr "Derecha"
+#: includes/class-hilo-admin.php:309
+msgid "Shown once per visit to people who have not opened the chat yet. It hides itself after 15 seconds; if the visitor closes it, it stays hidden for 3 days."
+msgstr "Se muestra una vez por visita a quien todavía no ha abierto el chat. Se oculta sola a los 15 segundos; si el visitante la cierra, no vuelve a aparecer durante 3 días."
 
-#: includes/class-hilo-admin.php:217
-msgid "Left"
-msgstr "Izquierda"
+#: includes/class-hilo-admin.php:311
+msgid "Bubble text"
+msgstr "Texto de la burbuja"
 
-#: includes/class-hilo-admin.php:223
+#: includes/class-hilo-admin.php:312
+msgid "Appears after"
+msgstr "Aparece a los"
+
+#: includes/class-hilo-admin.php:312
+msgid "seconds"
+msgstr "segundos"
+
+#: includes/class-hilo-admin.php:318
 msgid "Business hours"
 msgstr "Horario de atención"
 
 #. translators: %s: timezone name.
-#: includes/class-hilo-admin.php:227
+#: includes/class-hilo-admin.php:322
 #, php-format
 msgid "Site timezone: %s. Outside business hours, or when no agent is available, the widget invites visitors to leave a message and the reply arrives by email."
 msgstr "Zona horaria del sitio: %s. Fuera de horario, o si no hay agentes disponibles, el widget invita a dejar un mensaje y la respuesta llega por email."
 
-#: includes/class-hilo-admin.php:230
+#: includes/class-hilo-admin.php:325
 msgid "Open 24 hours, every day"
 msgstr "Atención 24 horas, todos los días"
 
-#: includes/class-hilo-admin.php:230
-msgid "(ignores the schedule below)"
-msgstr "(ignora el horario de abajo)"
+#: includes/class-hilo-admin.php:325
+msgid "Ignores the weekly schedule below."
+msgstr "Ignora el horario semanal de abajo."
 
-#: includes/class-hilo-admin.php:235
+#: includes/class-hilo-admin.php:334
 msgid "24 h"
 msgstr "24 h"
 
-#: includes/class-hilo-admin.php:237
+#: includes/class-hilo-admin.php:336
+msgid "Opens at"
+msgstr "Abre a las"
+
+#: includes/class-hilo-admin.php:337
 msgctxt "time range"
 msgid "to"
 msgstr "a"
 
-#: includes/class-hilo-admin.php:245
+#: includes/class-hilo-admin.php:338
+msgid "Closes at"
+msgstr "Cierra a las"
+
+#: includes/class-hilo-admin.php:340
+msgid "Closed"
+msgstr "Cerrado"
+
+#: includes/class-hilo-admin.php:347
 msgid "Appearance"
 msgstr "Apariencia"
 
-#: includes/class-hilo-admin.php:247
-msgid "Colors"
-msgstr "Colores"
+#: includes/class-hilo-admin.php:348
+msgid "Match the widget and the agent app to your brand. The preview updates as you edit."
+msgstr "Adapta el widget y la app de agentes a tu marca. La vista previa se actualiza mientras editas."
 
-#: includes/class-hilo-admin.php:248
+#: includes/class-hilo-admin.php:354
 msgid "Primary"
 msgstr "Principal"
 
-#: includes/class-hilo-admin.php:249
+#: includes/class-hilo-admin.php:354
+msgid "Header, button and team bubbles"
+msgstr "Cabecera, botón y burbujas del equipo"
+
+#: includes/class-hilo-admin.php:355
 msgid "Accent"
 msgstr "Acento"
 
-#: includes/class-hilo-admin.php:250
+#: includes/class-hilo-admin.php:355
+msgid "Links and highlights"
+msgstr "Enlaces y destacados"
+
+#: includes/class-hilo-admin.php:356
 msgid "Soft"
 msgstr "Suave"
 
-#: includes/class-hilo-admin.php:251
-msgid "Primary: header and team bubbles. Accent: buttons and links. Soft: backgrounds."
-msgstr "Principal: cabecera y burbujas del equipo. Acento: botones y enlaces. Suave: fondos."
+#: includes/class-hilo-admin.php:356
+msgid "Backgrounds and customer bubbles"
+msgstr "Fondos y burbujas del cliente"
 
-#: includes/class-hilo-admin.php:253
+#: includes/class-hilo-admin.php:368
 msgid "Heading font"
 msgstr "Tipografía de títulos"
 
-#: includes/class-hilo-admin.php:253
-msgid "Name of a font already loaded on the site, e.g. <code>\"Tenor Sans\", serif</code>. Use <code>inherit</code> to follow the theme."
-msgstr "Nombre de una fuente ya cargada en el sitio, p. ej. <code>\"Tenor Sans\", serif</code>. Usa <code>inherit</code> para heredar la del tema."
-
-#: includes/class-hilo-admin.php:254
+#: includes/class-hilo-admin.php:369
 msgid "Body font"
 msgstr "Tipografía de texto"
 
-#: includes/class-hilo-admin.php:255
-msgid "Email logo (URL)"
-msgstr "Logo para emails (URL)"
+#: includes/class-hilo-admin.php:370
+msgid "Name of a font already loaded on the site, e.g. <code>\"Tenor Sans\", serif</code>. Use <code>inherit</code> to follow the theme."
+msgstr "Nombre de una fuente ya cargada en el sitio, p. ej. <code>\"Tenor Sans\", serif</code>. Usa <code>inherit</code> para heredar la del tema."
 
-#: includes/class-hilo-admin.php:255
-msgid "Shown on top of the primary color, so a light version works best. Many email clients do not display SVG: use PNG."
-msgstr "Se muestra sobre el color principal, así que conviene una versión clara. Muchos clientes de correo no muestran SVG: usa PNG."
+#: includes/class-hilo-admin.php:374
+msgid "Preview"
+msgstr "Vista previa"
 
-#: includes/class-hilo-admin.php:256
+#: includes/class-hilo-admin.php:379
+msgid "Do you ship to my city?"
+msgstr "¿Hacen envíos a mi ciudad?"
+
+#: includes/class-hilo-admin.php:380
+msgid "See shipping options"
+msgstr "Ver opciones de envío"
+
+#: includes/class-hilo-admin.php:389
 msgid "Agent app icon"
 msgstr "Icono de la app de agentes"
 
-#: includes/class-hilo-admin.php:259
+#: includes/class-hilo-admin.php:394
 msgid "Choose image"
 msgstr "Elegir imagen"
 
-#: includes/class-hilo-admin.php:260
+#: includes/class-hilo-admin.php:395
 msgid "Use the default icon"
 msgstr "Usar el icono por defecto"
 
-#: includes/class-hilo-admin.php:261
+#: includes/class-hilo-admin.php:398
 msgid "Square 512×512 px PNG. Leave some space around the logo so Android does not crop it."
 msgstr "PNG cuadrado de 512×512 px. Deja margen alrededor del logo para que Android no lo recorte."
 
-#: includes/class-hilo-admin.php:267
+#: includes/class-hilo-admin.php:401
+msgid "Email logo (URL)"
+msgstr "Logo para emails (URL)"
+
+#: includes/class-hilo-admin.php:403
+msgid "Shown on top of the primary color, so a light version works best. Many email clients do not display SVG: use PNG."
+msgstr "Se muestra sobre el color principal, así que conviene una versión clara. Muchos clientes de correo no muestran SVG: usa PNG."
+
+#: includes/class-hilo-admin.php:409
 msgid "Advanced"
 msgstr "Avanzado"
 
-#: includes/class-hilo-admin.php:269
+#: includes/class-hilo-admin.php:410
+msgid "Technical options. The defaults work for most stores."
+msgstr "Opciones técnicas. Los valores por defecto sirven para la mayoría de tiendas."
+
+#: includes/class-hilo-admin.php:413
 msgid "App path"
 msgstr "Ruta del panel"
 
-#: includes/class-hilo-admin.php:269
+#: includes/class-hilo-admin.php:415
 msgid "If you change it, agents will need to reinstall the app."
 msgstr "Si la cambias, los agentes tendrán que reinstalar la app."
 
-#: includes/class-hilo-admin.php:270
+#: includes/class-hilo-admin.php:418
 msgid "Push contact email (VAPID)"
 msgstr "Email de contacto push (VAPID)"
 
-#: includes/class-hilo-admin.php:271
+#: includes/class-hilo-admin.php:420
+msgid "Push services use it to contact you if there is a problem."
+msgstr "Los servicios push lo usan para contactarte si hay algún problema."
+
+#: includes/class-hilo-admin.php:423
 msgid "Delete resolved chats after"
 msgstr "Borrar chats resueltos después de"
 
-#: includes/class-hilo-admin.php:271
+#: includes/class-hilo-admin.php:424
 msgid "days"
 msgstr "días"
 
-#: includes/class-hilo-admin.php:271
-msgid "(0 = never)"
-msgstr "(0 = nunca)"
+#: includes/class-hilo-admin.php:425
+msgid "0 = keep them forever."
+msgstr "0 = conservarlos siempre."
 
-#: includes/class-hilo-admin.php:275
+#: includes/class-hilo-admin.php:431
 msgid "Save settings"
 msgstr "Guardar ajustes"
 
-#: includes/class-hilo-admin.php:280
+#: includes/class-hilo-admin.php:432
+msgid "Changes apply to the store as soon as you save."
+msgstr "Los cambios se aplican en la tienda apenas guardas."
+
+#: includes/class-hilo-admin.php:441
 msgid "Agent app"
 msgstr "Panel de agentes"
 
-#: includes/class-hilo-admin.php:281
+#: includes/class-hilo-admin.php:445
 msgid "Answer chats from the browser or install it as an app on your phone or computer."
 msgstr "Atiende los chats desde el navegador o instálalo como app en el celular o el computador."
 
-#: includes/class-hilo-admin.php:282
+#: includes/class-hilo-admin.php:447
 msgid "Open app"
 msgstr "Abrir panel"
 
-#: includes/class-hilo-admin.php:286
+#: includes/class-hilo-admin.php:448
+msgid "Copy link"
+msgstr "Copiar enlace"
+
+#: includes/class-hilo-admin.php:453
 msgid "Agents"
 msgstr "Agentes"
 
+#: includes/class-hilo-admin.php:459
+#: assets/agent/app.js:184
+#: assets/agent/app.js:946
+#: assets/agent/app.js:1097
+msgid "Available"
+msgstr "Disponible"
+
+#: includes/class-hilo-admin.php:459
+#: assets/agent/app.js:946
+#: assets/agent/app.js:1097
+msgid "Away"
+msgstr "Ausente"
+
 #. translators: %s: link to the Users screen.
-#: includes/class-hilo-admin.php:294
+#: includes/class-hilo-admin.php:467
 #, php-format
 msgid "To add agents, give them the <strong>Chat agent</strong> role in %s. Administrators and shop managers can answer chats too."
 msgstr "Para sumar agentes, asígnales el rol <strong>Agente de chat</strong> en %s. Los administradores y gestores de tienda también pueden atender."
 
-#: includes/class-hilo-admin.php:295
+#: includes/class-hilo-admin.php:468
 msgid "Users"
 msgstr "Usuarios"
 
-#: includes/class-hilo-admin.php:301
+#: includes/class-hilo-admin.php:475
 msgid "Resolved conversations"
 msgstr "Conversaciones resueltas"
 
 #. translators: %d: number of conversations.
-#: includes/class-hilo-admin.php:305
+#: includes/class-hilo-admin.php:479
 #, php-format
-msgid "There is %d resolved conversation stored."
-msgid_plural "There are %d resolved conversations stored."
-msgstr[0] "Hay %d conversación resuelta guardada."
-msgstr[1] "Hay %d conversaciones resueltas guardadas."
+msgid "There is <strong>%d</strong> resolved conversation stored."
+msgid_plural "There are <strong>%d</strong> resolved conversations stored."
+msgstr[0] "Hay <strong>%d</strong> conversación resuelta guardada."
+msgstr[1] "Hay <strong>%d</strong> conversaciones resueltas guardadas."
 
-#: includes/class-hilo-admin.php:309
+#: includes/class-hilo-admin.php:483
 #: assets/agent/app.js:688
 msgid "Delete all resolved conversations and their attachments? This cannot be undone."
 msgstr "¿Eliminar todas las conversaciones resueltas y sus adjuntos? Esta acción no se puede deshacer."
 
-#: includes/class-hilo-admin.php:312
+#: includes/class-hilo-admin.php:486
 msgid "Delete all resolved conversations now"
 msgstr "Eliminar ahora todas las conversaciones resueltas"
 
-#: includes/class-hilo-admin.php:323
-msgid "App icon"
-msgstr "Icono de la app"
+#. translators: 1: plugin name and version, 2: author link.
+#: includes/class-hilo-admin.php:497
+#, php-format
+msgid "%1$s · Made by %2$s"
+msgstr "%1$s · Hecho por %2$s"
 
 #. translators: %s: store name.
 #: includes/class-hilo-agent-app.php:116
@@ -666,12 +796,6 @@ msgstr "Visto %s"
 msgid "Connection error"
 msgstr "Error de conexión"
 
-#: assets/agent/app.js:184
-#: assets/agent/app.js:946
-#: assets/agent/app.js:1097
-msgid "Available"
-msgstr "Disponible"
-
 #: assets/agent/app.js:185
 msgid "Menu"
 msgstr "Menú"
@@ -959,10 +1083,6 @@ msgid "Copy email"
 msgstr "Copiar email"
 
 #: assets/agent/app.js:711
-msgid "Copied"
-msgstr "Copiado"
-
-#: assets/agent/app.js:711
 msgid "Copy:"
 msgstr "Copia:"
 
@@ -1050,11 +1170,6 @@ msgstr "móvil"
 #: assets/agent/app.js:800
 msgid "desktop"
 msgstr "escritorio"
-
-#: assets/agent/app.js:946
-#: assets/agent/app.js:1097
-msgid "Away"
-msgstr "Ausente"
 
 #: assets/agent/app.js:947
 msgid "You receive chats and notifications. Tap to go away."
@@ -1205,10 +1320,6 @@ msgstr "Fuera del horario de atención."
 #: assets/agent/app.js:1096
 msgid "you"
 msgstr "tú"
-
-#: assets/agent/app.js:1097
-msgid "Offline"
-msgstr "Desconectado"
 
 #: assets/widget/widget.js:128
 #: assets/widget/widget.js:319

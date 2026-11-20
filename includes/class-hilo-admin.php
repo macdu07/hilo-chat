@@ -20,6 +20,8 @@ class HILO_Admin {
 		add_action( 'admin_post_hilo_save_settings', array( __CLASS__, 'save' ) );
 		add_action( 'admin_post_hilo_delete_resolved', array( __CLASS__, 'delete_resolved' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( HILO_PLUGIN_FILE ), array( __CLASS__, 'action_links' ) );
+		add_filter( 'admin_body_class', array( __CLASS__, 'body_class' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue' ) );
 	}
 
 	/**
@@ -129,207 +131,376 @@ class HILO_Admin {
 		return preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', (string) $value ) ? $value : $fallback;
 	}
 
+
+	/**
+	 * Whether the current admin screen is ours.
+	 *
+	 * @return bool
+	 */
+	private static function is_screen() {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		return $screen && 'woocommerce_page_hilo-chat' === $screen->id;
+	}
+
+	/**
+	 * Tints the admin canvas on this page only.
+	 *
+	 * @param string $classes Body classes.
+	 * @return string
+	 */
+	public static function body_class( $classes ) {
+		return self::is_screen() ? $classes . ' hilo-screen' : $classes;
+	}
+
+	/**
+	 * Loads the screen assets.
+	 *
+	 * @param string $hook_suffix Screen.
+	 */
+	public static function enqueue( $hook_suffix ) {
+		if ( 'woocommerce_page_hilo-chat' !== $hook_suffix ) {
+			return;
+		}
+		$ver = static function ( $file ) {
+			return HILO_VERSION . '.' . filemtime( HILO_PLUGIN_PATH . $file );
+		};
+		wp_enqueue_media();
+		wp_enqueue_style( 'hilo-admin', HILO_PLUGIN_URL . 'assets/admin/admin.css', array(), $ver( 'assets/admin/admin.css' ) );
+		wp_enqueue_script( 'hilo-admin', HILO_PLUGIN_URL . 'assets/admin/admin.js', array(), $ver( 'assets/admin/admin.js' ), true );
+		wp_localize_script(
+			'hilo-admin',
+			'HiloAdmin',
+			array(
+				'iconTitle'   => __( 'App icon', 'hilo-chat' ),
+				'defaultIcon' => HILO_PLUGIN_URL . 'assets/agent/icons/icon-192.png',
+				'unsaved'     => __( 'You have unsaved changes.', 'hilo-chat' ),
+				'copied'      => __( 'Copied', 'hilo-chat' ),
+			)
+		);
+	}
+
+	/**
+	 * Renders a switch bound to a checkbox.
+	 *
+	 * @param string $name    Field name.
+	 * @param bool   $checked State.
+	 * @param string $title   Bold title.
+	 * @param string $desc    Explanation.
+	 * @param array  $attrs   Extra input attributes.
+	 */
+	private static function toggle( $name, $checked, $title, $desc = '', $attrs = array() ) {
+		$extra = '';
+		foreach ( $attrs as $k => $v ) {
+			$extra .= ' ' . esc_attr( $k ) . '="' . esc_attr( $v ) . '"';
+		}
+		?>
+		<label class="hilo-toggle">
+			<input type="checkbox" name="<?php echo esc_attr( $name ); ?>" value="1" <?php checked( $checked ); ?><?php echo $extra; // phpcs:ignore WordPress.Security.EscapeOutput ?>>
+			<span class="hilo-switch__track" aria-hidden="true"><span></span></span>
+			<span class="hilo-toggle__copy"><strong><?php echo esc_html( $title ); ?></strong><?php echo esc_html( $desc ); ?></span>
+		</label>
+		<?php
+	}
+
 	/**
 	 * Renders the page.
 	 */
 	public static function render() {
 		global $wp_locale;
-		wp_enqueue_media();
 		$s        = HILO_Settings::all();
 		$texts    = HILO_Settings::text_defaults();
 		$days     = array( 1, 2, 3, 4, 5, 6, 0 );
 		$agents   = HILO_Presence::agents_for_app();
 		$icon     = $s['app_icon_id'] ? wp_get_attachment_image_url( (int) $s['app_icon_id'], 'thumbnail' ) : HILO_PLUGIN_URL . 'assets/agent/icons/icon-192.png';
 		$resolved = HILO_DB::count_resolved();
+		$status   = HILO_REST::status();
+		$app_url  = HILO_Settings::app_url();
 		/* translators: %s: store name. */
 		$team_placeholder = sprintf( __( '%s team', 'hilo-chat' ), HILO_Settings::brand() );
-		$blank_hint       = __( 'Leave it empty to use the default text, translated automatically.', 'hilo-chat' );
+
+		if ( ! $s['enabled'] ) {
+			$stamp = array( 'off', __( 'Hidden', 'hilo-chat' ) );
+		} elseif ( $s['test_mode'] ) {
+			$stamp = array( 'test', __( 'Test mode', 'hilo-chat' ) );
+		} elseif ( $status['online'] ) {
+			$stamp = array( 'live', __( 'Online now', 'hilo-chat' ) );
+		} else {
+			$stamp = array( 'off', __( 'Offline', 'hilo-chat' ) );
+		}
 		?>
 		<div class="wrap hilo-admin">
-			<style>
-				.hilo-admin .hilo-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start;max-width:1200px}
-				.hilo-admin .hilo-card{background:#fff;border:1px solid #dcdcde;border-radius:10px;padding:20px 24px;margin-bottom:20px}
-				.hilo-admin .hilo-card h2{margin-top:0;font-size:15px}
-				.hilo-admin .form-table th{width:210px}
-				.hilo-admin .hilo-hours td{padding:6px 10px 6px 0}
-				.hilo-admin .hilo-hours.is-disabled{opacity:.45;pointer-events:none}
-				.hilo-admin .hilo-hours tr.is-allday .hilo-time{opacity:.35;pointer-events:none}
-				.hilo-admin .hilo-agent{display:flex;align-items:center;gap:10px;padding:6px 0}
-				.hilo-admin .hilo-agent img{width:28px;height:28px;border-radius:50%}
-				.hilo-admin .hilo-dot{width:8px;height:8px;border-radius:50%;background:#c3c4c7;display:inline-block}
-				.hilo-admin .hilo-dot.on{background:#00a32a}
-				.hilo-admin .hilo-icon-preview{width:56px;height:56px;border-radius:12px;vertical-align:middle;margin-right:10px;border:1px solid #dcdcde}
-				.hilo-admin .button-link-delete{color:#b32d2e}
-				@media (max-width:960px){.hilo-admin .hilo-grid{grid-template-columns:1fr}}
-			</style>
-			<h1>Hilo Chat</h1>
+			<header class="hilo-header">
+				<div class="hilo-header__copy">
+					<h1>Hilo Chat <span class="hilo-stamp hilo-stamp--<?php echo esc_attr( $stamp[0] ); ?>"><?php echo esc_html( $stamp[1] ); ?></span></h1>
+					<p><?php esc_html_e( 'Live support for your store. Customers write from the chat widget and your team answers from the agent app, on desktop or phone.', 'hilo-chat' ); ?></p>
+				</div>
+				<div class="hilo-header__actions">
+					<a class="hilo-button hilo-button--light" href="<?php echo esc_url( $app_url ); ?>" target="_blank" rel="noopener">
+						<span class="dashicons dashicons-format-chat" aria-hidden="true"></span>
+						<?php esc_html_e( 'Open agent app', 'hilo-chat' ); ?>
+					</a>
+				</div>
+			</header>
+			<hr class="wp-header-end" hidden>
+
 			<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
-				<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'hilo-chat' ); ?></p></div>
+				<div class="hilo-feedback" role="status">
+					<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+					<div class="hilo-feedback__copy"><strong><?php esc_html_e( 'Settings saved.', 'hilo-chat' ); ?></strong></div>
+					<button type="button" class="hilo-feedback__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'hilo-chat' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
+				</div>
 			<?php endif; ?>
 			<?php if ( isset( $_GET['deleted'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification ?>
 				<?php $n = absint( $_GET['deleted'] ); // phpcs:ignore WordPress.Security.NonceVerification ?>
-				<div class="notice notice-success is-dismissible"><p>
-					<?php
-					/* translators: %d: number of conversations. */
-					echo esc_html( sprintf( _n( '%d resolved conversation deleted.', '%d resolved conversations deleted.', $n, 'hilo-chat' ), $n ) );
-					?>
-				</p></div>
-			<?php endif; ?>
-			<?php if ( $s['test_mode'] ) : ?>
-				<div class="notice notice-warning"><p><?php echo wp_kses( __( '<strong>Test mode is on:</strong> only users who can answer chats see the widget. Turn it off to show it to every visitor.', 'hilo-chat' ), array( 'strong' => array() ) ); ?></p></div>
-			<?php endif; ?>
-
-			<div class="hilo-grid">
-			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="hilo_save_settings">
-				<?php wp_nonce_field( 'hilo_save_settings' ); ?>
-
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'General', 'hilo-chat' ); ?></h2>
-					<table class="form-table" role="presentation">
-						<tr><th><?php esc_html_e( 'Status', 'hilo-chat' ); ?></th><td>
-							<label><input type="checkbox" name="enabled" value="1" <?php checked( $s['enabled'] ); ?>> <?php esc_html_e( 'Show the chat on the store', 'hilo-chat' ); ?></label><br>
-							<label><input type="checkbox" name="test_mode" value="1" <?php checked( $s['test_mode'] ); ?>> <?php esc_html_e( 'Test mode (only agents see the widget)', 'hilo-chat' ); ?></label><br>
-							<label><input type="checkbox" name="hide_on_checkout" value="1" <?php checked( $s['hide_on_checkout'] ); ?>> <?php esc_html_e( 'Hide on the checkout page', 'hilo-chat' ); ?></label>
-						</td></tr>
-						<tr><th><label for="hilo-brand"><?php esc_html_e( 'Brand name', 'hilo-chat' ); ?></label></th><td><input id="hilo-brand" class="regular-text" name="brand_name" value="<?php echo esc_attr( $s['brand_name'] ); ?>"></td></tr>
-						<tr><th><label for="hilo-title"><?php esc_html_e( 'Widget title', 'hilo-chat' ); ?></label></th><td><input id="hilo-title" class="regular-text" name="title" value="<?php echo esc_attr( $s['title'] ); ?>" placeholder="<?php echo esc_attr( $texts['title'] ); ?>"></td></tr>
-						<tr><th><label for="hilo-sub"><?php esc_html_e( 'Team name', 'hilo-chat' ); ?></label></th><td><input id="hilo-sub" class="regular-text" name="subtitle" value="<?php echo esc_attr( $s['subtitle'] ); ?>" placeholder="<?php echo esc_attr( $team_placeholder ); ?>"></td></tr>
-						<tr><th><label for="hilo-greet"><?php esc_html_e( 'Greeting', 'hilo-chat' ); ?></label></th><td><textarea id="hilo-greet" class="large-text" rows="2" name="greeting" placeholder="<?php echo esc_attr( $texts['greeting'] ); ?>"><?php echo esc_textarea( $s['greeting'] ); ?></textarea><p class="description"><?php echo esc_html( $blank_hint ); ?></p></td></tr>
-						<tr><th><?php esc_html_e( 'Greeting bubble', 'hilo-chat' ); ?></th><td>
-							<label><input type="checkbox" name="teaser_enabled" value="1" <?php checked( ! empty( $s['teaser_enabled'] ) ); ?>> <?php esc_html_e( 'Show a message next to the chat button', 'hilo-chat' ); ?></label>
-							<p><input class="large-text" name="teaser_text" value="<?php echo esc_attr( $s['teaser_text'] ); ?>" placeholder="<?php echo esc_attr( $texts['teaser_text'] ); ?>" maxlength="140" aria-label="<?php esc_attr_e( 'Bubble text', 'hilo-chat' ); ?>"></p>
-							<p><label>
-								<?php
-								printf(
-									/* translators: %s: number input. */
-									esc_html__( 'Appears after %s seconds', 'hilo-chat' ),
-									'<input type="number" min="2" max="120" name="teaser_delay" value="' . (int) $s['teaser_delay'] . '" style="width:70px">' // phpcs:ignore WordPress.Security.EscapeOutput
-								);
-								?>
-							</label></p>
-							<p class="description"><?php esc_html_e( 'Shown once per visit to people who have not opened the chat yet. It hides itself after 15 seconds; if the visitor closes it, it stays hidden for 3 days.', 'hilo-chat' ); ?></p>
-						</td></tr>
-						<tr><th><label for="hilo-on"><?php esc_html_e( 'Online text', 'hilo-chat' ); ?></label></th><td><input id="hilo-on" class="large-text" name="online_text" value="<?php echo esc_attr( $s['online_text'] ); ?>" placeholder="<?php echo esc_attr( $texts['online_text'] ); ?>"></td></tr>
-						<tr><th><label for="hilo-off"><?php esc_html_e( 'Offline text', 'hilo-chat' ); ?></label></th><td><textarea id="hilo-off" class="large-text" rows="2" name="offline_text" placeholder="<?php echo esc_attr( $texts['offline_text'] ); ?>"><?php echo esc_textarea( $s['offline_text'] ); ?></textarea></td></tr>
-						<tr><th><?php esc_html_e( 'Position', 'hilo-chat' ); ?></th><td>
-							<label><input type="radio" name="position" value="right" <?php checked( 'right', $s['position'] ); ?>> <?php esc_html_e( 'Right', 'hilo-chat' ); ?></label> &nbsp;
-							<label><input type="radio" name="position" value="left" <?php checked( 'left', $s['position'] ); ?>> <?php esc_html_e( 'Left', 'hilo-chat' ); ?></label>
-						</td></tr>
-					</table>
-				</div>
-
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Business hours', 'hilo-chat' ); ?></h2>
-					<p class="description">
-						<?php
-						/* translators: %s: timezone name. */
-						echo esc_html( sprintf( __( 'Site timezone: %s. Outside business hours, or when no agent is available, the widget invites visitors to leave a message and the reply arrives by email.', 'hilo-chat' ), wp_timezone_string() ) );
-						?>
-					</p>
-					<p><label><input type="checkbox" name="always_open" value="1" id="hilo-always" <?php checked( ! empty( $s['always_open'] ) ); ?>> <strong><?php esc_html_e( 'Open 24 hours, every day', 'hilo-chat' ); ?></strong> <?php esc_html_e( '(ignores the schedule below)', 'hilo-chat' ); ?></label></p>
-					<table class="hilo-hours" id="hilo-hours">
-						<?php foreach ( $days as $d ) : $h = $s['hours'][ $d ] ?? array( 'enabled' => false, 'start' => '09:00', 'end' => '18:00' ); ?>
-							<tr>
-								<td style="width:120px"><label><input type="checkbox" name="hours[<?php echo (int) $d; ?>][enabled]" value="1" <?php checked( ! empty( $h['enabled'] ) ); ?>> <?php echo esc_html( $wp_locale->get_weekday( $d ) ); ?></label></td>
-								<td><label><input type="checkbox" class="hilo-allday" name="hours[<?php echo (int) $d; ?>][allday]" value="1" <?php checked( ! empty( $h['allday'] ) ); ?>> <?php esc_html_e( '24 h', 'hilo-chat' ); ?></label></td>
-								<td class="hilo-time"><input type="time" name="hours[<?php echo (int) $d; ?>][start]" value="<?php echo esc_attr( $h['start'] ); ?>"></td>
-								<td class="hilo-time"><?php echo esc_html_x( 'to', 'time range', 'hilo-chat' ); ?></td>
-								<td class="hilo-time"><input type="time" name="hours[<?php echo (int) $d; ?>][end]" value="<?php echo esc_attr( $h['end'] ); ?>"></td>
-							</tr>
-						<?php endforeach; ?>
-					</table>
-				</div>
-
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Appearance', 'hilo-chat' ); ?></h2>
-					<table class="form-table" role="presentation">
-						<tr><th><?php esc_html_e( 'Colors', 'hilo-chat' ); ?></th><td>
-							<label><?php esc_html_e( 'Primary', 'hilo-chat' ); ?> <input type="color" name="color_primary" value="<?php echo esc_attr( $s['color_primary'] ); ?>"></label> &nbsp;
-							<label><?php esc_html_e( 'Accent', 'hilo-chat' ); ?> <input type="color" name="color_accent" value="<?php echo esc_attr( $s['color_accent'] ); ?>"></label> &nbsp;
-							<label><?php esc_html_e( 'Soft', 'hilo-chat' ); ?> <input type="color" name="color_soft" value="<?php echo esc_attr( $s['color_soft'] ); ?>"></label>
-							<p class="description"><?php esc_html_e( 'Primary: header and team bubbles. Accent: buttons and links. Soft: backgrounds.', 'hilo-chat' ); ?></p>
-						</td></tr>
-						<tr><th><label for="hilo-fh"><?php esc_html_e( 'Heading font', 'hilo-chat' ); ?></label></th><td><input id="hilo-fh" class="regular-text" name="font_heading" value="<?php echo esc_attr( $s['font_heading'] ); ?>"><p class="description"><?php echo wp_kses( __( 'Name of a font already loaded on the site, e.g. <code>"Tenor Sans", serif</code>. Use <code>inherit</code> to follow the theme.', 'hilo-chat' ), array( 'code' => array() ) ); ?></p></td></tr>
-						<tr><th><label for="hilo-fb"><?php esc_html_e( 'Body font', 'hilo-chat' ); ?></label></th><td><input id="hilo-fb" class="regular-text" name="font_body" value="<?php echo esc_attr( $s['font_body'] ); ?>"></td></tr>
-						<tr><th><label for="hilo-logo"><?php esc_html_e( 'Email logo (URL)', 'hilo-chat' ); ?></label></th><td><input id="hilo-logo" class="large-text" name="logo_url" value="<?php echo esc_attr( $s['logo_url'] ); ?>" placeholder="https://…/logo-white.png"><p class="description"><?php esc_html_e( 'Shown on top of the primary color, so a light version works best. Many email clients do not display SVG: use PNG.', 'hilo-chat' ); ?></p></td></tr>
-						<tr><th><?php esc_html_e( 'Agent app icon', 'hilo-chat' ); ?></th><td>
-							<img class="hilo-icon-preview" id="hilo-icon-preview" src="<?php echo esc_url( $icon ); ?>" alt="">
-							<input type="hidden" name="app_icon_id" id="hilo-icon-id" value="<?php echo (int) $s['app_icon_id']; ?>">
-							<button type="button" class="button" id="hilo-icon-pick"><?php esc_html_e( 'Choose image', 'hilo-chat' ); ?></button>
-							<button type="button" class="button-link" id="hilo-icon-reset"><?php esc_html_e( 'Use the default icon', 'hilo-chat' ); ?></button>
-							<p class="description"><?php esc_html_e( 'Square 512×512 px PNG. Leave some space around the logo so Android does not crop it.', 'hilo-chat' ); ?></p>
-						</td></tr>
-					</table>
-				</div>
-
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Advanced', 'hilo-chat' ); ?></h2>
-					<table class="form-table" role="presentation">
-						<tr><th><label for="hilo-slug"><?php esc_html_e( 'App path', 'hilo-chat' ); ?></label></th><td><code><?php echo esc_html( home_url( '/' ) ); ?></code><input id="hilo-slug" name="app_slug" value="<?php echo esc_attr( $s['app_slug'] ); ?>" style="width:180px"><code>/</code><p class="description"><?php esc_html_e( 'If you change it, agents will need to reinstall the app.', 'hilo-chat' ); ?></p></td></tr>
-						<tr><th><label for="hilo-push"><?php esc_html_e( 'Push contact email (VAPID)', 'hilo-chat' ); ?></label></th><td><input id="hilo-push" type="email" class="regular-text" name="push_subject" value="<?php echo esc_attr( $s['push_subject'] ); ?>"></td></tr>
-						<tr><th><label for="hilo-ret"><?php esc_html_e( 'Delete resolved chats after', 'hilo-chat' ); ?></label></th><td><input id="hilo-ret" type="number" min="0" name="retention_days" value="<?php echo (int) $s['retention_days']; ?>" style="width:90px"> <?php esc_html_e( 'days', 'hilo-chat' ); ?> <span class="description"><?php esc_html_e( '(0 = never)', 'hilo-chat' ); ?></span></td></tr>
-					</table>
-				</div>
-
-				<?php submit_button( __( 'Save settings', 'hilo-chat' ) ); ?>
-			</form>
-
-			<div>
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Agent app', 'hilo-chat' ); ?></h2>
-					<p><?php esc_html_e( 'Answer chats from the browser or install it as an app on your phone or computer.', 'hilo-chat' ); ?></p>
-					<p><a class="button button-primary" href="<?php echo esc_url( HILO_Settings::app_url() ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Open app', 'hilo-chat' ); ?></a></p>
-					<p class="description"><code><?php echo esc_html( HILO_Settings::app_url() ); ?></code></p>
-				</div>
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Agents', 'hilo-chat' ); ?></h2>
-					<?php foreach ( $agents as $a ) : ?>
-						<div class="hilo-agent"><img src="<?php echo esc_url( $a['avatar'] ); ?>" alt=""><span class="hilo-dot <?php echo $a['online'] && $a['available'] ? 'on' : ''; ?>"></span> <?php echo esc_html( $a['name'] ); ?></div>
-					<?php endforeach; ?>
-					<p class="description">
-						<?php
-						printf(
-							/* translators: %s: link to the Users screen. */
-							wp_kses( __( 'To add agents, give them the <strong>Chat agent</strong> role in %s. Administrators and shop managers can answer chats too.', 'hilo-chat' ), array( 'strong' => array() ) ),
-							'<a href="' . esc_url( admin_url( 'users.php' ) ) . '">' . esc_html__( 'Users', 'hilo-chat' ) . '</a>'
-						);
-						?>
-					</p>
-				</div>
-				<div class="hilo-card">
-					<h2><?php esc_html_e( 'Resolved conversations', 'hilo-chat' ); ?></h2>
-					<p>
+				<div class="hilo-feedback" role="status">
+					<span class="dashicons dashicons-trash" aria-hidden="true"></span>
+					<div class="hilo-feedback__copy"><strong>
 						<?php
 						/* translators: %d: number of conversations. */
-						echo esc_html( sprintf( _n( 'There is %d resolved conversation stored.', 'There are %d resolved conversations stored.', $resolved, 'hilo-chat' ), $resolved ) );
+						echo esc_html( sprintf( _n( '%d resolved conversation deleted.', '%d resolved conversations deleted.', $n, 'hilo-chat' ), $n ) );
 						?>
-					</p>
-					<?php if ( $resolved ) : ?>
-						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Delete all resolved conversations and their attachments? This cannot be undone.', 'hilo-chat' ) ) ); ?>);">
-							<input type="hidden" name="action" value="hilo_delete_resolved">
-							<?php wp_nonce_field( 'hilo_delete_resolved' ); ?>
-							<button type="submit" class="button button-link-delete"><?php esc_html_e( 'Delete all resolved conversations now', 'hilo-chat' ); ?></button>
-						</form>
-					<?php endif; ?>
+					</strong></div>
+					<button type="button" class="hilo-feedback__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'hilo-chat' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
 				</div>
+			<?php endif; ?>
+			<?php if ( $s['enabled'] && $s['test_mode'] ) : ?>
+				<div class="hilo-feedback hilo-feedback--warning">
+					<span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+					<div class="hilo-feedback__copy"><?php echo wp_kses( __( '<strong>Test mode is on:</strong> only users who can answer chats see the widget. Turn it off to show it to every visitor.', 'hilo-chat' ), array( 'strong' => array() ) ); ?></div>
+				</div>
+			<?php endif; ?>
+
+			<div class="hilo-layout">
+				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="hilo-form" id="hilo-settings-form">
+					<input type="hidden" name="action" value="hilo_save_settings">
+					<?php wp_nonce_field( 'hilo_save_settings' ); ?>
+
+					<section class="hilo-panel">
+						<h2><span class="dashicons dashicons-store" aria-hidden="true"></span><?php esc_html_e( 'Chat on the store', 'hilo-chat' ); ?></h2>
+						<p class="hilo-panel__intro"><?php esc_html_e( 'Choose who sees the chat button and where it sits.', 'hilo-chat' ); ?></p>
+						<div class="hilo-toggles">
+							<?php
+							self::toggle( 'enabled', (bool) $s['enabled'], __( 'Show the chat on the store', 'hilo-chat' ), __( 'Turn it off to hide the chat button everywhere.', 'hilo-chat' ) );
+							self::toggle( 'test_mode', (bool) $s['test_mode'], __( 'Test mode', 'hilo-chat' ), __( 'Only agents see the widget, so you can try it before customers do.', 'hilo-chat' ) );
+							self::toggle( 'hide_on_checkout', (bool) $s['hide_on_checkout'], __( 'Hide on the checkout page', 'hilo-chat' ), __( 'Keeps the payment step free of distractions.', 'hilo-chat' ) );
+							?>
+						</div>
+						<div class="hilo-panel__section">
+							<p class="hilo-field__label" id="hilo-position-label"><?php esc_html_e( 'Position', 'hilo-chat' ); ?></p>
+							<fieldset class="hilo-choices" aria-labelledby="hilo-position-label" style="margin-top:8px">
+								<label class="hilo-choice"><input type="radio" name="position" value="right" <?php checked( 'right', $s['position'] ); ?>><span class="hilo-choice__art hilo-choice__art--right" aria-hidden="true"></span><span><strong><?php esc_html_e( 'Right', 'hilo-chat' ); ?></strong><?php esc_html_e( 'Bottom right corner', 'hilo-chat' ); ?></span></label>
+								<label class="hilo-choice"><input type="radio" name="position" value="left" <?php checked( 'left', $s['position'] ); ?>><span class="hilo-choice__art hilo-choice__art--left" aria-hidden="true"></span><span><strong><?php esc_html_e( 'Left', 'hilo-chat' ); ?></strong><?php esc_html_e( 'Bottom left corner', 'hilo-chat' ); ?></span></label>
+							</fieldset>
+						</div>
+					</section>
+
+					<section class="hilo-panel">
+						<h2><span class="dashicons dashicons-editor-quote" aria-hidden="true"></span><?php esc_html_e( 'Texts', 'hilo-chat' ); ?></h2>
+						<p class="hilo-panel__intro"><?php esc_html_e( 'Leave a field empty to use the default text, translated automatically into the store language.', 'hilo-chat' ); ?></p>
+						<div class="hilo-fields">
+							<div class="hilo-field"><label for="hilo-brand"><?php esc_html_e( 'Brand name', 'hilo-chat' ); ?></label><input id="hilo-brand" type="text" name="brand_name" value="<?php echo esc_attr( $s['brand_name'] ); ?>"></div>
+							<div class="hilo-field"><label for="hilo-sub"><?php esc_html_e( 'Team name', 'hilo-chat' ); ?></label><input id="hilo-sub" type="text" name="subtitle" value="<?php echo esc_attr( $s['subtitle'] ); ?>" placeholder="<?php echo esc_attr( $team_placeholder ); ?>"></div>
+							<div class="hilo-field hilo-field--full"><label for="hilo-title"><?php esc_html_e( 'Widget title', 'hilo-chat' ); ?></label><input id="hilo-title" type="text" name="title" value="<?php echo esc_attr( $s['title'] ); ?>" placeholder="<?php echo esc_attr( $texts['title'] ); ?>"></div>
+							<div class="hilo-field hilo-field--full"><label for="hilo-greet"><?php esc_html_e( 'Greeting', 'hilo-chat' ); ?> <span><?php esc_html_e( 'first message customers see', 'hilo-chat' ); ?></span></label><textarea id="hilo-greet" rows="2" name="greeting" placeholder="<?php echo esc_attr( $texts['greeting'] ); ?>"><?php echo esc_textarea( $s['greeting'] ); ?></textarea></div>
+							<div class="hilo-field"><label for="hilo-on"><?php esc_html_e( 'Online text', 'hilo-chat' ); ?></label><input id="hilo-on" type="text" name="online_text" value="<?php echo esc_attr( $s['online_text'] ); ?>" placeholder="<?php echo esc_attr( $texts['online_text'] ); ?>"></div>
+							<div class="hilo-field"><label for="hilo-off"><?php esc_html_e( 'Offline text', 'hilo-chat' ); ?></label><input id="hilo-off" type="text" name="offline_text" value="<?php echo esc_attr( $s['offline_text'] ); ?>" placeholder="<?php echo esc_attr( $texts['offline_text'] ); ?>"></div>
+						</div>
+						<div class="hilo-panel__section">
+							<?php self::toggle( 'teaser_enabled', ! empty( $s['teaser_enabled'] ), __( 'Greeting bubble', 'hilo-chat' ), __( 'Shown once per visit to people who have not opened the chat yet. It hides itself after 15 seconds; if the visitor closes it, it stays hidden for 3 days.', 'hilo-chat' ) ); ?>
+							<div class="hilo-fields" style="margin-top:16px">
+								<div class="hilo-field"><label for="hilo-teaser"><?php esc_html_e( 'Bubble text', 'hilo-chat' ); ?></label><input id="hilo-teaser" type="text" name="teaser_text" value="<?php echo esc_attr( $s['teaser_text'] ); ?>" placeholder="<?php echo esc_attr( $texts['teaser_text'] ); ?>" maxlength="140"></div>
+								<div class="hilo-field"><label for="hilo-delay"><?php esc_html_e( 'Appears after', 'hilo-chat' ); ?></label><span class="hilo-inline-number"><input id="hilo-delay" type="number" min="2" max="120" name="teaser_delay" value="<?php echo (int) $s['teaser_delay']; ?>"> <?php esc_html_e( 'seconds', 'hilo-chat' ); ?></span></div>
+							</div>
+						</div>
+					</section>
+
+					<section class="hilo-panel">
+						<h2><span class="dashicons dashicons-clock" aria-hidden="true"></span><?php esc_html_e( 'Business hours', 'hilo-chat' ); ?></h2>
+						<p class="hilo-panel__intro">
+							<?php
+							/* translators: %s: timezone name. */
+							echo esc_html( sprintf( __( 'Site timezone: %s. Outside business hours, or when no agent is available, the widget invites visitors to leave a message and the reply arrives by email.', 'hilo-chat' ), wp_timezone_string() ) );
+							?>
+						</p>
+						<?php self::toggle( 'always_open', ! empty( $s['always_open'] ), __( 'Open 24 hours, every day', 'hilo-chat' ), __( 'Ignores the weekly schedule below.', 'hilo-chat' ), array( 'id' => 'hilo-always' ) ); ?>
+						<div class="hilo-week" id="hilo-week">
+							<?php foreach ( $days as $d ) : $h = $s['hours'][ $d ] ?? array( 'enabled' => false, 'start' => '09:00', 'end' => '18:00' ); ?>
+								<div class="hilo-day">
+									<label class="hilo-toggle">
+										<input type="checkbox" class="hilo-day__open" name="hours[<?php echo (int) $d; ?>][enabled]" value="1" <?php checked( ! empty( $h['enabled'] ) ); ?>>
+										<span class="hilo-switch__track" aria-hidden="true"><span></span></span>
+										<span class="hilo-toggle__copy"><strong><?php echo esc_html( $wp_locale->get_weekday( $d ) ); ?></strong></span>
+									</label>
+									<label class="hilo-check hilo-day__allday"><input type="checkbox" name="hours[<?php echo (int) $d; ?>][allday]" value="1" <?php checked( ! empty( $h['allday'] ) ); ?>> <?php esc_html_e( '24 h', 'hilo-chat' ); ?></label>
+									<span class="hilo-day__range">
+										<input class="hilo-time-input" type="time" name="hours[<?php echo (int) $d; ?>][start]" value="<?php echo esc_attr( $h['start'] ); ?>" aria-label="<?php esc_attr_e( 'Opens at', 'hilo-chat' ); ?>">
+										<?php echo esc_html_x( 'to', 'time range', 'hilo-chat' ); ?>
+										<input class="hilo-time-input" type="time" name="hours[<?php echo (int) $d; ?>][end]" value="<?php echo esc_attr( $h['end'] ); ?>" aria-label="<?php esc_attr_e( 'Closes at', 'hilo-chat' ); ?>">
+									</span>
+									<span class="hilo-day__closed"><?php esc_html_e( 'Closed', 'hilo-chat' ); ?></span>
+								</div>
+							<?php endforeach; ?>
+						</div>
+					</section>
+
+					<section class="hilo-panel">
+						<h2><span class="dashicons dashicons-art" aria-hidden="true"></span><?php esc_html_e( 'Appearance', 'hilo-chat' ); ?></h2>
+						<p class="hilo-panel__intro"><?php esc_html_e( 'Match the widget and the agent app to your brand. The preview updates as you edit.', 'hilo-chat' ); ?></p>
+						<div class="hilo-appearance">
+							<div>
+								<div class="hilo-swatches">
+									<?php
+									$swatches = array(
+										'color_primary' => array( __( 'Primary', 'hilo-chat' ), __( 'Header, button and team bubbles', 'hilo-chat' ) ),
+										'color_accent'  => array( __( 'Accent', 'hilo-chat' ), __( 'Links and highlights', 'hilo-chat' ) ),
+										'color_soft'    => array( __( 'Soft', 'hilo-chat' ), __( 'Backgrounds and customer bubbles', 'hilo-chat' ) ),
+									);
+									foreach ( $swatches as $key => $label ) :
+										?>
+										<label class="hilo-swatch">
+											<input type="color" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $s[ $key ] ); ?>">
+											<span><strong><?php echo esc_html( $label[0] ); ?></strong><small><?php echo esc_html( $label[1] ); ?></small></span>
+											<code data-hilo-hex="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $s[ $key ] ); ?></code>
+										</label>
+									<?php endforeach; ?>
+								</div>
+								<div class="hilo-fields" style="margin-top:18px">
+									<div class="hilo-field"><label for="hilo-fh"><?php esc_html_e( 'Heading font', 'hilo-chat' ); ?></label><input id="hilo-fh" type="text" name="font_heading" value="<?php echo esc_attr( $s['font_heading'] ); ?>"></div>
+									<div class="hilo-field"><label for="hilo-fb"><?php esc_html_e( 'Body font', 'hilo-chat' ); ?></label><input id="hilo-fb" type="text" name="font_body" value="<?php echo esc_attr( $s['font_body'] ); ?>"></div>
+									<p class="hilo-hint hilo-field--full"><?php echo wp_kses( __( 'Name of a font already loaded on the site, e.g. <code>"Tenor Sans", serif</code>. Use <code>inherit</code> to follow the theme.', 'hilo-chat' ), array( 'code' => array() ) ); ?></p>
+								</div>
+							</div>
+							<div class="hilo-preview" id="hilo-preview" aria-hidden="true">
+								<span class="hilo-preview__label"><?php esc_html_e( 'Preview', 'hilo-chat' ); ?></span>
+								<div class="hilo-preview__panel">
+									<div class="hilo-preview__head"><span class="hilo-preview__avatar">C</span><span class="hilo-preview__title"></span></div>
+									<div class="hilo-preview__body">
+										<div class="hilo-preview__bubble hilo-preview__bubble--in hilo-preview__greeting"></div>
+										<div class="hilo-preview__bubble hilo-preview__bubble--out"><?php esc_html_e( 'Do you ship to my city?', 'hilo-chat' ); ?></div>
+										<span class="hilo-preview__link"><?php esc_html_e( 'See shipping options', 'hilo-chat' ); ?></span>
+										<span class="hilo-preview__send"></span>
+									</div>
+								</div>
+								<span class="hilo-preview__launcher"></span>
+							</div>
+						</div>
+						<div class="hilo-panel__section hilo-fields">
+							<div class="hilo-field">
+								<span class="hilo-field__label"><?php esc_html_e( 'Agent app icon', 'hilo-chat' ); ?></span>
+								<div class="hilo-icon-picker">
+									<img src="<?php echo esc_url( $icon ); ?>" alt="" data-hilo-icon>
+									<input type="hidden" name="app_icon_id" id="hilo-icon-id" value="<?php echo (int) $s['app_icon_id']; ?>">
+									<span class="hilo-icon-picker__actions">
+										<button type="button" class="hilo-button hilo-button--ghost hilo-button--sm" id="hilo-icon-pick"><?php esc_html_e( 'Choose image', 'hilo-chat' ); ?></button>
+										<button type="button" class="hilo-link-button" id="hilo-icon-reset"><?php esc_html_e( 'Use the default icon', 'hilo-chat' ); ?></button>
+									</span>
+								</div>
+								<p><?php esc_html_e( 'Square 512×512 px PNG. Leave some space around the logo so Android does not crop it.', 'hilo-chat' ); ?></p>
+							</div>
+							<div class="hilo-field">
+								<label for="hilo-logo"><?php esc_html_e( 'Email logo (URL)', 'hilo-chat' ); ?></label>
+								<input id="hilo-logo" type="url" name="logo_url" value="<?php echo esc_attr( $s['logo_url'] ); ?>" placeholder="https://…/logo-white.png">
+								<p><?php esc_html_e( 'Shown on top of the primary color, so a light version works best. Many email clients do not display SVG: use PNG.', 'hilo-chat' ); ?></p>
+							</div>
+						</div>
+					</section>
+
+					<section class="hilo-panel">
+						<h2><span class="dashicons dashicons-admin-generic" aria-hidden="true"></span><?php esc_html_e( 'Advanced', 'hilo-chat' ); ?></h2>
+						<p class="hilo-panel__intro"><?php esc_html_e( 'Technical options. The defaults work for most stores.', 'hilo-chat' ); ?></p>
+						<div class="hilo-fields">
+							<div class="hilo-field hilo-field--full">
+								<label for="hilo-slug"><?php esc_html_e( 'App path', 'hilo-chat' ); ?></label>
+								<span class="hilo-prefixed"><span class="hilo-prefixed__prefix"><?php echo esc_html( home_url( '/' ) ); ?></span><input id="hilo-slug" type="text" name="app_slug" value="<?php echo esc_attr( $s['app_slug'] ); ?>"></span>
+								<p><?php esc_html_e( 'If you change it, agents will need to reinstall the app.', 'hilo-chat' ); ?></p>
+							</div>
+							<div class="hilo-field">
+								<label for="hilo-push"><?php esc_html_e( 'Push contact email (VAPID)', 'hilo-chat' ); ?></label>
+								<input id="hilo-push" type="email" name="push_subject" value="<?php echo esc_attr( $s['push_subject'] ); ?>">
+								<p><?php esc_html_e( 'Push services use it to contact you if there is a problem.', 'hilo-chat' ); ?></p>
+							</div>
+							<div class="hilo-field">
+								<label for="hilo-ret"><?php esc_html_e( 'Delete resolved chats after', 'hilo-chat' ); ?></label>
+								<span class="hilo-inline-number"><input id="hilo-ret" type="number" min="0" name="retention_days" value="<?php echo (int) $s['retention_days']; ?>"> <?php esc_html_e( 'days', 'hilo-chat' ); ?></span>
+								<p><?php esc_html_e( '0 = keep them forever.', 'hilo-chat' ); ?></p>
+							</div>
+						</div>
+					</section>
+
+					<div class="hilo-savebar">
+						<button type="submit" class="hilo-button"><span class="dashicons dashicons-saved" aria-hidden="true"></span><?php esc_html_e( 'Save settings', 'hilo-chat' ); ?></button>
+						<span class="hilo-savebar__note"><?php esc_html_e( 'Changes apply to the store as soon as you save.', 'hilo-chat' ); ?></span>
+					</div>
+				</form>
+
+				<aside class="hilo-aside">
+					<section class="hilo-panel hilo-panel--compact hilo-app-card">
+						<div class="hilo-app-card__top">
+							<img src="<?php echo esc_url( $icon ); ?>" alt="" data-hilo-icon>
+							<div>
+								<h2><?php esc_html_e( 'Agent app', 'hilo-chat' ); ?></h2>
+								<span class="hilo-app-card__url"><?php echo esc_html( preg_replace( '#^https?://#', '', $app_url ) ); ?></span>
+							</div>
+						</div>
+						<p class="hilo-hint" style="margin:0"><?php esc_html_e( 'Answer chats from the browser or install it as an app on your phone or computer.', 'hilo-chat' ); ?></p>
+						<div class="hilo-app-card__buttons">
+							<a class="hilo-button hilo-button--sm" href="<?php echo esc_url( $app_url ); ?>" target="_blank" rel="noopener"><?php esc_html_e( 'Open app', 'hilo-chat' ); ?></a>
+							<button type="button" class="hilo-button hilo-button--ghost hilo-button--sm" id="hilo-copy-url" data-url="<?php echo esc_attr( $app_url ); ?>"><span class="dashicons dashicons-admin-links" aria-hidden="true"></span><span class="hilo-copy-label"><?php esc_html_e( 'Copy link', 'hilo-chat' ); ?></span></button>
+						</div>
+					</section>
+
+					<section class="hilo-panel hilo-panel--compact">
+						<h2><?php esc_html_e( 'Agents', 'hilo-chat' ); ?></h2>
+						<div class="hilo-agents">
+							<?php foreach ( $agents as $a ) : $live = $a['online'] && $a['available']; ?>
+								<div class="hilo-agent">
+									<img src="<?php echo esc_url( $a['avatar'] ); ?>" alt="">
+									<span class="hilo-agent__name"><?php echo esc_html( $a['name'] ); ?></span>
+									<span class="hilo-agent__state <?php echo $live ? 'is-live' : ''; ?>"><span class="hilo-dot"></span><?php echo esc_html( $live ? __( 'Available', 'hilo-chat' ) : ( $a['online'] ? __( 'Away', 'hilo-chat' ) : __( 'Offline', 'hilo-chat' ) ) ); ?></span>
+								</div>
+							<?php endforeach; ?>
+						</div>
+						<p class="hilo-hint">
+							<?php
+							printf(
+								/* translators: %s: link to the Users screen. */
+								wp_kses( __( 'To add agents, give them the <strong>Chat agent</strong> role in %s. Administrators and shop managers can answer chats too.', 'hilo-chat' ), array( 'strong' => array() ) ),
+								'<a href="' . esc_url( admin_url( 'users.php' ) ) . '">' . esc_html__( 'Users', 'hilo-chat' ) . '</a>'
+							);
+							?>
+						</p>
+					</section>
+
+					<section class="hilo-danger">
+						<h2><?php esc_html_e( 'Resolved conversations', 'hilo-chat' ); ?></h2>
+						<p>
+							<?php
+							/* translators: %d: number of conversations. */
+							echo wp_kses( sprintf( _n( 'There is <strong>%d</strong> resolved conversation stored.', 'There are <strong>%d</strong> resolved conversations stored.', $resolved, 'hilo-chat' ), $resolved ), array( 'strong' => array() ) );
+							?>
+						</p>
+						<?php if ( $resolved ) : ?>
+							<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" data-hilo-confirm="<?php esc_attr_e( 'Delete all resolved conversations and their attachments? This cannot be undone.', 'hilo-chat' ); ?>">
+								<input type="hidden" name="action" value="hilo_delete_resolved">
+								<?php wp_nonce_field( 'hilo_delete_resolved' ); ?>
+								<button type="submit" class="hilo-button hilo-button--danger hilo-button--sm"><span class="dashicons dashicons-trash" aria-hidden="true"></span><?php esc_html_e( 'Delete all resolved conversations now', 'hilo-chat' ); ?></button>
+							</form>
+						<?php endif; ?>
+					</section>
+				</aside>
 			</div>
-			</div>
+
+			<p class="hilo-signature">
+				<?php
+				printf(
+					/* translators: 1: plugin name and version, 2: author link. */
+					esc_html__( '%1$s · Made by %2$s', 'hilo-chat' ),
+					esc_html( 'Hilo Chat ' . HILO_VERSION ),
+					'<a href="https://mauriciocorread.com/" target="_blank" rel="noopener">Mauricio Correa</a>' // phpcs:ignore WordPress.Security.EscapeOutput
+				);
+				?>
+			</p>
 		</div>
-		<script>
-		(function(){
-			var pick=document.getElementById('hilo-icon-pick'),reset=document.getElementById('hilo-icon-reset'),id=document.getElementById('hilo-icon-id'),img=document.getElementById('hilo-icon-preview'),def=<?php echo wp_json_encode( HILO_PLUGIN_URL . 'assets/agent/icons/icon-192.png' ); ?>,frame;
-			pick.addEventListener('click',function(){
-				if(!frame){frame=wp.media({title:<?php echo wp_json_encode( __( 'App icon', 'hilo-chat' ) ); ?>,library:{type:'image'},multiple:false});
-				frame.on('select',function(){var a=frame.state().get('selection').first().toJSON();id.value=a.id;img.src=(a.sizes&&a.sizes.thumbnail?a.sizes.thumbnail.url:a.url);});}
-				frame.open();
-			});
-			reset.addEventListener('click',function(){id.value=0;img.src=def;});
-			var always=document.getElementById('hilo-always'),table=document.getElementById('hilo-hours');
-			function syncHours(){table.classList.toggle('is-disabled',always.checked);table.querySelectorAll('tr').forEach(function(tr){var c=tr.querySelector('.hilo-allday');tr.classList.toggle('is-allday',!!(c&&c.checked));});}
-			always.addEventListener('change',syncHours);table.addEventListener('change',syncHours);syncHours();
-		})();
-		</script>
 		<?php
 	}
 }

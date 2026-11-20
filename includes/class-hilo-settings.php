@@ -42,17 +42,18 @@ class HILO_Settings {
 			'color_soft'       => '#f3f4f6',
 			'font_heading'     => 'inherit',
 			'font_body'        => 'inherit',
-			'title'            => 'Hablemos',
+			// Texts: empty means "use the translated default" (see text_defaults()).
+			'title'            => '',
 			'subtitle'         => '',
-			'greeting'         => '¡Hola! 👋 ¿Tienes alguna pregunta sobre un producto o tu pedido? Escríbenos.',
-			'online_text'      => 'En línea · respondemos en minutos',
-			'offline_text'     => 'Déjanos tu mensaje y te responderemos por email lo antes posible.',
+			'greeting'         => '',
+			'online_text'      => '',
+			'offline_text'     => '',
 			'hide_on_checkout' => true,
 			'position'         => 'right',
 			'retention_days'   => 180,
 			'always_open'      => false,
 			'teaser_enabled'   => true,
-			'teaser_text'      => '¿Tienes alguna duda? Estamos aquí para ayudarte 💬',
+			'teaser_text'      => '',
 			'teaser_delay'     => 8,
 			'push_subject'     => get_option( 'admin_email' ),
 			'hours'            => array(
@@ -100,8 +101,41 @@ class HILO_Settings {
 	 * @return mixed
 	 */
 	public static function get( $key, $default = null ) {
+		$all   = self::all();
+		$value = array_key_exists( $key, $all ) ? $all[ $key ] : $default;
+		if ( is_string( $value ) && '' === trim( $value ) ) {
+			$texts = self::text_defaults();
+			if ( isset( $texts[ $key ] ) ) {
+				return $texts[ $key ];
+			}
+		}
+		return $value;
+	}
+
+	/**
+	 * Customer-facing texts in the current language, used when a field is left empty.
+	 *
+	 * @return array
+	 */
+	public static function text_defaults() {
+		return array(
+			'title'        => __( "Let's talk", 'hilo-chat' ),
+			'greeting'     => __( 'Hi! 👋 Do you have a question about a product or your order? Write to us.', 'hilo-chat' ),
+			'online_text'  => __( 'Online · we reply in minutes', 'hilo-chat' ),
+			'offline_text' => __( 'Leave us a message and we will reply by email as soon as possible.', 'hilo-chat' ),
+			'teaser_text'  => __( 'Any questions? We are here to help 💬', 'hilo-chat' ),
+		);
+	}
+
+	/**
+	 * Raw saved value (no translated fallback), for the settings form.
+	 *
+	 * @param string $key Key.
+	 * @return mixed
+	 */
+	public static function raw( $key ) {
 		$all = self::all();
-		return array_key_exists( $key, $all ) ? $all[ $key ] : $default;
+		return $all[ $key ] ?? '';
 	}
 
 	/**
@@ -121,7 +155,8 @@ class HILO_Settings {
 	 */
 	public static function team_name() {
 		$subtitle = trim( (string) self::get( 'subtitle' ) );
-		return '' !== $subtitle ? $subtitle : 'Equipo ' . self::brand();
+		/* translators: %s: store name. */
+		return '' !== $subtitle ? $subtitle : sprintf( __( '%s team', 'hilo-chat' ), self::brand() );
 	}
 
 	/**

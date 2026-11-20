@@ -70,7 +70,8 @@ class HILO_Mailer {
 		include HILO_PLUGIN_PATH . 'templates/email-reply.php';
 		$html = ob_get_clean();
 
-		$subject = sprintf( '%s te respondió en %s', $agent, HILO_Settings::brand() );
+		/* translators: 1: agent name, 2: store name. */
+		$subject = sprintf( __( '%1$s replied to you at %2$s', 'hilo-chat' ), $agent, HILO_Settings::brand() );
 		$sent    = wp_mail( $c->email, $subject, $html, array( 'Content-Type: text/html; charset=UTF-8' ) );
 		if ( $sent ) {
 			HILO_DB::update_conversation( $c->id, array( 'last_emailed_id' => (int) $last['id'] ), false );

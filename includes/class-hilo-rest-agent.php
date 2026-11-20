@@ -28,6 +28,8 @@ class HILO_REST_Agent {
 			'/agent/assign'                   => array( 'POST', 'assign' ),
 			'/agent/close'                    => array( 'POST', 'close' ),
 			'/agent/reopen'                   => array( 'POST', 'reopen' ),
+			'/agent/delete'                   => array( 'POST', 'delete' ),
+			'/agent/delete-resolved'          => array( 'POST', 'delete_resolved' ),
 			'/agent/typing'                   => array( 'POST', 'typing' ),
 			'/agent/presence'                 => array( 'POST', 'presence' ),
 			'/agent/quick-replies'            => array( 'GET,POST', 'quick_replies' ),
@@ -67,16 +69,22 @@ class HILO_REST_Agent {
 	 */
 	private static function load( $id ) {
 		$c = HILO_DB::get_conversation( absint( $id ) );
-		return $c ? $c : new WP_Error( 'hilo_not_found', 'Conversación no encontrada.', array( 'status' => 404 ) );
+		return $c ? $c : new WP_Error( 'hilo_not_found', __( 'Conversation not found.', 'hilo-chat' ), array( 'status' => 404 ) );
 	}
 
 	/**
 	 * Adds a system note visible in the thread.
 	 *
 	 * @param object $c    Conversation.
-	 * @param string $text Text.
+	 * @param callable $note Returns the translated text.
 	 */
-	private static function system_note( $c, $text ) {
+	private static function system_note( $c, callable $note ) {
+		// Notes are stored once and shown to visitors too, so use the site language.
+		$switched = switch_to_locale( get_locale() );
+		$text     = $note();
+		if ( $switched ) {
+			restore_previous_locale();
+		}
 		HILO_DB::add_message( $c, 'system', get_current_user_id(), $text );
 	}
 
@@ -99,6 +107,7 @@ class HILO_REST_Agent {
 			'now'           => time(),
 			'conversations' => HILO_DB::list_conversations( $since ),
 			'full'          => 0 === $since,
+			'deleted'       => $since ? HILO_DB::deleted_since( $since ) : array(),
 		);
 
 		if ( $open ) {
@@ -186,7 +195,7 @@ class HILO_REST_Agent {
 		$body = sanitize_textarea_field( (string) $request->get_param( 'body' ) );
 		$msg  = HILO_DB::add_message( $c, 'agent', $user_id, $body );
 		if ( ! $msg ) {
-			return new WP_Error( 'hilo_empty', 'El mensaje está vacío.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_empty', __( 'The message is empty.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		HILO_Presence::clear_typing( $c->id, 'agent' );
 		HILO_Mailer::maybe_schedule( $c );
@@ -206,7 +215,7 @@ class HILO_REST_Agent {
 		}
 		$files = $request->get_file_params();
 		if ( empty( $files['file'] ) ) {
-			return new WP_Error( 'hilo_upload', 'No se recibió ningún archivo.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_upload', __( 'No file was received.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		$att = HILO_Uploads::store( $files['file'] );
 		if ( is_wp_error( $att ) ) {
@@ -251,7 +260,7 @@ class HILO_REST_Agent {
 		$target = $request->has_param( 'agent' ) ? absint( $request->get_param( 'agent' ) ) : $me;
 
 		if ( $target && ! user_can( $target, HILO_CAP ) ) {
-			return new WP_Error( 'hilo_bad_agent', 'Ese usuario no es agente.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_bad_agent', __( 'That user is not an agent.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		if ( (int) $c->assigned_agent_id === $target ) {
 			return rest_ensure_response( array( 'ok' => true ) );
@@ -261,12 +270,30 @@ class HILO_REST_Agent {
 
 		$me_name = HILO_Presence::agent_public( $me )['name'];
 		if ( ! $target ) {
-			self::system_note( $c, $me_name . ' liberó la conversación.' );
+			self::system_note(
+				$c,
+				static function () use ( $me_name ) {
+					/* translators: %s: agent name. */
+					return sprintf( __( '%s released the conversation.', 'hilo-chat' ), $me_name );
+				}
+			);
 		} elseif ( $target === $me ) {
-			self::system_note( $c, $me_name . ' se unió a la conversación.' );
+			self::system_note(
+				$c,
+				static function () use ( $me_name ) {
+					/* translators: %s: agent name. */
+					return sprintf( __( '%s joined the conversation.', 'hilo-chat' ), $me_name );
+				}
+			);
 		} else {
 			$to = HILO_Presence::agent_public( $target )['name'];
-			self::system_note( $c, $me_name . ' transfirió la conversación a ' . $to . '.' );
+			self::system_note(
+				$c,
+				static function () use ( $me_name, $to ) {
+					/* translators: 1: agent name, 2: agent name. */
+					return sprintf( __( '%1$s transferred the conversation to %2$s.', 'hilo-chat' ), $me_name, $to );
+				}
+			);
 			HILO_Push::notify_transfer( $c, $target, $me );
 		}
 		return rest_ensure_response( array( 'ok' => true ) );
@@ -291,7 +318,12 @@ class HILO_REST_Agent {
 				'agent_last_read_id' => (int) $c->last_message_id,
 			)
 		);
-		self::system_note( $c, 'La conversación fue marcada como resuelta.' );
+		self::system_note(
+			$c,
+			static function () {
+				return __( 'The conversation was marked as resolved.', 'hilo-chat' );
+			}
+		);
 		return rest_ensure_response( array( 'ok' => true ) );
 	}
 
@@ -308,6 +340,36 @@ class HILO_REST_Agent {
 		}
 		HILO_DB::update_conversation( $c->id, array( 'status' => 'open', 'closed_at' => null ) );
 		return rest_ensure_response( array( 'ok' => true ) );
+	}
+
+	/**
+	 * POST /agent/delete — deletes one resolved conversation.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function delete( WP_REST_Request $request ) {
+		$c = self::load( $request->get_param( 'conversation' ) );
+		if ( is_wp_error( $c ) ) {
+			return $c;
+		}
+		if ( 'closed' !== $c->status ) {
+			return new WP_Error( 'hilo_not_resolved', __( 'Only resolved conversations can be deleted.', 'hilo-chat' ), array( 'status' => 400 ) );
+		}
+		HILO_DB::delete_conversations( array( (int) $c->id ) );
+		return rest_ensure_response( array( 'deleted' => array( (int) $c->id ) ) );
+	}
+
+	/**
+	 * POST /agent/delete-resolved — deletes every resolved conversation (store managers only).
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function delete_resolved() {
+		if ( ! current_user_can( 'manage_woocommerce' ) && ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'hilo_forbidden', __( 'Only store managers can delete all resolved conversations.', 'hilo-chat' ), array( 'status' => 403 ) );
+		}
+		return rest_ensure_response( array( 'count' => HILO_DB::delete_resolved() ) );
 	}
 
 	/**
@@ -361,7 +423,7 @@ class HILO_REST_Agent {
 				'body'     => (string) $request->get_param( 'body' ),
 			);
 			if ( '' === trim( $data['body'] ) || '' === trim( $data['shortcut'] ) ) {
-				return new WP_Error( 'hilo_invalid', 'El atajo y el texto son obligatorios.', array( 'status' => 400 ) );
+				return new WP_Error( 'hilo_invalid', __( 'Shortcut and text are required.', 'hilo-chat' ), array( 'status' => 400 ) );
 			}
 			HILO_DB::save_quick_reply( $data );
 		}
@@ -394,7 +456,7 @@ class HILO_REST_Agent {
 			isset( $keys['auth'] ) ? (string) $keys['auth'] : ''
 		);
 		if ( ! $ok ) {
-			return new WP_Error( 'hilo_push', 'No se pudo registrar este dispositivo para notificaciones.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_push', __( 'This device could not be registered for notifications.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		return rest_ensure_response( array( 'ok' => true ) );
 	}
@@ -418,12 +480,14 @@ class HILO_REST_Agent {
 	public static function push_test() {
 		HILO_Push::queue(
 			array( get_current_user_id() ),
-			array(
-				'title' => 'Notificaciones activas ✅',
-				'body'  => 'Así te avisaremos cuando llegue un mensaje nuevo.',
-				'tag'   => 'hilo-test',
-				'url'   => HILO_Settings::app_url(),
-			)
+			static function () {
+				return array(
+					'title' => __( 'Notifications are on ✅', 'hilo-chat' ),
+					'body'  => __( 'This is how we will let you know when a new message arrives.', 'hilo-chat' ),
+					'tag'   => 'hilo-test',
+					'url'   => HILO_Settings::app_url(),
+				);
+			}
 		);
 		return rest_ensure_response( array( 'ok' => true ) );
 	}

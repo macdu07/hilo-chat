@@ -13,7 +13,7 @@ foreach ( array( 'conversations', 'messages', 'push_subscriptions', 'quick_repli
 	$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}hilo_{$table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 }
 
-foreach ( array( 'hilo_settings', 'hilo_vapid', 'hilo_db_version', 'hilo_flush_rewrite', 'hilo_rewrite_slug' ) as $option ) {
+foreach ( array( 'hilo_settings', 'hilo_vapid', 'hilo_db_version', 'hilo_flush_rewrite', 'hilo_rewrite_slug', 'hilo_deleted' ) as $option ) {
 	delete_option( $option );
 }
 

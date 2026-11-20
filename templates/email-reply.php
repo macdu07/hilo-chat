@@ -17,7 +17,7 @@ $logo    = HILO_Settings::get( 'logo_url' );
 $site    = wp_parse_url( home_url(), PHP_URL_HOST );
 ?>
 <!doctype html>
-<html lang="es">
+<html <?php language_attributes(); ?>>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>
 <body style="margin:0;padding:0;background:<?php echo esc_attr( $soft ); ?>;font-family:Helvetica,Arial,sans-serif;color:#1f2937;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:<?php echo esc_attr( $soft ); ?>;padding:32px 12px;">
@@ -32,10 +32,16 @@ $site    = wp_parse_url( home_url(), PHP_URL_HOST );
 		</td></tr>
 		<tr><td style="padding:28px 28px 8px;">
 			<p style="margin:0 0 6px;font-size:18px;font-weight:700;">
-				<?php echo $name ? esc_html( sprintf( 'Hola %s,', $name ) ) : 'Hola,'; ?>
+				<?php
+				/* translators: %s: customer name. */
+				echo esc_html( $name ? sprintf( __( 'Hi %s,', 'hilo-chat' ), $name ) : __( 'Hi,', 'hilo-chat' ) );
+				?>
 			</p>
 			<p style="margin:0 0 20px;font-size:15px;line-height:1.55;color:#4b5563;">
-				<?php echo esc_html( sprintf( '%s respondió a tu mensaje en el chat de %s:', $agent, $brand ) ); ?>
+				<?php
+				/* translators: 1: agent name, 2: store name. */
+				echo esc_html( sprintf( __( '%1$s replied to your message in the %2$s chat:', 'hilo-chat' ), $agent, $brand ) );
+				?>
 			</p>
 			<?php foreach ( $messages as $m ) : ?>
 				<div style="background:<?php echo esc_attr( $soft ); ?>;border-radius:14px 14px 14px 4px;padding:12px 16px;margin:0 0 10px;font-size:15px;line-height:1.5;">
@@ -43,14 +49,22 @@ $site    = wp_parse_url( home_url(), PHP_URL_HOST );
 						<?php echo nl2br( esc_html( $m['body'] ) ); ?>
 					<?php endif; ?>
 					<?php if ( ! empty( $m['attachment']['url'] ) ) : ?>
-						<div style="margin-top:8px;"><a href="<?php echo esc_url( $m['attachment']['url'] ); ?>" style="color:<?php echo esc_attr( $accent ); ?>;">Ver archivo adjunto</a></div>
+						<div style="margin-top:8px;"><a href="<?php echo esc_url( $m['attachment']['url'] ); ?>" style="color:<?php echo esc_attr( $accent ); ?>;"><?php esc_html_e( 'View attachment', 'hilo-chat' ); ?></a></div>
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>
 		</td></tr>
 		<tr><td style="padding:12px 28px 32px;">
-			<a href="<?php echo esc_url( $link ); ?>" style="display:inline-block;background:<?php echo esc_attr( $primary ); ?>;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:999px;font-size:15px;font-weight:700;">Continuar la conversación</a>
-			<p style="margin:18px 0 0;font-size:13px;color:#6b7280;line-height:1.5;">También puedes responder abriendo el chat en <a href="<?php echo esc_url( home_url( '/' ) ); ?>" style="color:<?php echo esc_attr( $accent ); ?>;"><?php echo esc_html( $site ); ?></a>.</p>
+			<a href="<?php echo esc_url( $link ); ?>" style="display:inline-block;background:<?php echo esc_attr( $primary ); ?>;color:#ffffff;text-decoration:none;padding:13px 24px;border-radius:999px;font-size:15px;font-weight:700;"><?php esc_html_e( 'Continue the conversation', 'hilo-chat' ); ?></a>
+			<p style="margin:18px 0 0;font-size:13px;color:#6b7280;line-height:1.5;">
+				<?php
+				printf(
+					/* translators: %s: link to the store. */
+					esc_html__( 'You can also reply by opening the chat at %s.', 'hilo-chat' ),
+					'<a href="' . esc_url( home_url( '/' ) ) . '" style="color:' . esc_attr( $accent ) . ';">' . esc_html( $site ) . '</a>' // phpcs:ignore WordPress.Security.EscapeOutput
+				);
+				?>
+			</p>
 		</td></tr>
 	</table>
 </td></tr>

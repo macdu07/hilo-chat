@@ -126,7 +126,7 @@ class HILO_REST {
 	 * @return WP_Error
 	 */
 	public static function too_many() {
-		return new WP_Error( 'hilo_rate_limited', 'Estás enviando demasiados mensajes. Espera un momento.', array( 'status' => 429 ) );
+		return new WP_Error( 'hilo_rate_limited', __( 'You are sending too many messages. Please wait a moment.', 'hilo-chat' ), array( 'status' => 429 ) );
 	}
 
 	/**

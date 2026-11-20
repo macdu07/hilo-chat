@@ -11,12 +11,12 @@ defined( 'ABSPATH' ) || exit;
 $theme_color = $config['theme']['primary'];
 ?>
 <!doctype html>
-<html lang="es">
+<html <?php language_attributes(); ?>>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 	<meta name="robots" content="noindex, nofollow">
-	<title><?php echo esc_html( $config['brand'] . ' · Chats' ); ?></title>
+	<title><?php echo esc_html( $config['brand'] . ' · ' . __( 'Chats', 'hilo-chat' ) ); ?></title>
 	<meta name="theme-color" content="<?php echo esc_attr( $theme_color ); ?>">
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="mobile-web-app-capable" content="yes">
@@ -31,9 +31,9 @@ $theme_color = $config['theme']['primary'];
 </head>
 <body>
 	<div id="app" class="app" data-view="list">
-		<div class="boot"><div class="boot-spinner" aria-label="Cargando"></div></div>
+		<div class="boot"><div class="boot-spinner" aria-label="<?php esc_attr_e( 'Loading', 'hilo-chat' ); ?>"></div></div>
 	</div>
-	<noscript>Activa JavaScript para usar el panel de chats.</noscript>
+	<noscript><?php esc_html_e( 'Turn on JavaScript to use the chat app.', 'hilo-chat' ); ?></noscript>
 	<script src="<?php echo esc_url( $assets . 'app.js?ver=' . $ver ); ?>" defer></script>
 </body>
 </html>

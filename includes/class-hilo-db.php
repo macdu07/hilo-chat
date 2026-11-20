@@ -185,11 +185,11 @@ class HILO_DB {
 		$context = $c->context ? json_decode( $c->context, true ) : array();
 		$last    = isset( $c->last_body ) ? (string) $c->last_body : '';
 		if ( '' === $last && ! empty( $c->last_has_attachment ) ) {
-			$last = '📷 Imagen';
+			$last = '📷 ' . __( 'Image', 'hilo-chat' );
 		}
 		return array(
 			'id'             => (int) $c->id,
-			'name'           => $c->name ? $c->name : 'Visitante',
+			'name'           => $c->name ? $c->name : __( 'Visitor', 'hilo-chat' ),
 			'email'          => $c->email,
 			'userId'         => (int) $c->user_id,
 			'status'         => $c->status,
@@ -392,15 +392,53 @@ class HILO_DB {
 			return;
 		}
 		$t     = self::table( 'conversations' );
-		$m     = self::table( 'messages' );
 		$limit = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
 		$ids   = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$t} WHERE status = 'closed' AND updated_at < %s LIMIT 500", $limit ) ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		self::delete_conversations( $ids );
+	}
+
+	/**
+	 * Number of resolved conversations stored.
+	 *
+	 * @return int
+	 */
+	public static function count_resolved() {
+		global $wpdb;
+		$t = self::table( 'conversations' );
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t} WHERE status = 'closed'" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
+
+	/**
+	 * Deletes every resolved conversation.
+	 *
+	 * @return int Deleted conversations.
+	 */
+	public static function delete_resolved() {
+		global $wpdb;
+		$t     = self::table( 'conversations' );
+		$total = 0;
+		do {
+			$ids    = $wpdb->get_col( "SELECT id FROM {$t} WHERE status = 'closed' LIMIT 500" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$total += self::delete_conversations( $ids );
+		} while ( count( $ids ) === 500 );
+		return $total;
+	}
+
+	/**
+	 * Deletes conversations with their messages and attachment files.
+	 *
+	 * @param int[] $ids Conversation IDs.
+	 * @return int Deleted conversations.
+	 */
+	public static function delete_conversations( $ids ) {
+		global $wpdb;
+		$ids = array_filter( array_map( 'intval', (array) $ids ) );
 		if ( ! $ids ) {
-			return;
+			return 0;
 		}
-		$ids = array_map( 'intval', $ids );
-		$in  = implode( ',', $ids );
-		// Remove attachment files.
+		$t    = self::table( 'conversations' );
+		$m    = self::table( 'messages' );
+		$in   = implode( ',', $ids );
 		$atts = $wpdb->get_col( "SELECT attachment FROM {$m} WHERE conversation_id IN ({$in}) AND attachment IS NOT NULL" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		foreach ( $atts as $json ) {
 			$att = json_decode( $json, true );
@@ -408,7 +446,37 @@ class HILO_DB {
 				HILO_Uploads::delete_file( $att['file'] );
 			}
 		}
+		foreach ( $ids as $id ) {
+			wp_clear_scheduled_hook( 'hilo_send_reply_email', array( $id ) );
+		}
 		$wpdb->query( "DELETE FROM {$m} WHERE conversation_id IN ({$in})" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$wpdb->query( "DELETE FROM {$t} WHERE id IN ({$in})" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$deleted = (int) $wpdb->query( "DELETE FROM {$t} WHERE id IN ({$in})" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Short log so open agent apps can drop them on their next sync.
+		$log = get_option( 'hilo_deleted', array() );
+		$log = is_array( $log ) ? $log : array();
+		$now = time();
+		foreach ( $ids as $id ) {
+			$log[] = array( $id, $now );
+		}
+		update_option( 'hilo_deleted', array_slice( $log, -300 ), false );
+		return $deleted;
+	}
+
+	/**
+	 * Conversation IDs deleted since a timestamp.
+	 *
+	 * @param int $since Unix timestamp.
+	 * @return int[]
+	 */
+	public static function deleted_since( $since ) {
+		$log = get_option( 'hilo_deleted', array() );
+		$out = array();
+		foreach ( is_array( $log ) ? $log : array() as $row ) {
+			if ( (int) $row[1] >= $since - 5 ) {
+				$out[] = (int) $row[0];
+			}
+		}
+		return $out;
 	}
 }

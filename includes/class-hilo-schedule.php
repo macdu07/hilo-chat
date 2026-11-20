@@ -37,7 +37,7 @@ class HILO_Schedule {
 	}
 
 	/**
-	 * Human text for the next opening, e.g. "mañana a las 09:00".
+	 * Sentence announcing the next opening, e.g. "We will be back tomorrow at 09:00".
 	 *
 	 * @return string
 	 */
@@ -47,7 +47,7 @@ class HILO_Schedule {
 		}
 		$hours = HILO_Settings::get( 'hours', array() );
 		$now   = new DateTimeImmutable( 'now', wp_timezone() );
-		$names = array( 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado' );
+		global $wp_locale;
 
 		for ( $i = 0; $i < 8; $i++ ) {
 			$date = $now->modify( "+{$i} day" );
@@ -59,16 +59,21 @@ class HILO_Schedule {
 			if ( 0 === $i && $now->format( 'H:i' ) >= $start ) {
 				continue;
 			}
+			$weekday = $wp_locale ? $wp_locale->get_weekday( $day ) : $date->format( 'l' );
 			if ( ! empty( $hours[ $day ]['allday'] ) ) {
-				return 1 === $i ? 'mañana' : 'el ' . $names[ $day ];
+				/* translators: %s: weekday name. */
+				return 1 === $i ? __( 'We will be back tomorrow.', 'hilo-chat' ) : sprintf( __( 'We will be back on %s.', 'hilo-chat' ), $weekday );
 			}
 			if ( 0 === $i ) {
-				return 'hoy a las ' . $start;
+				/* translators: %s: time, e.g. 09:00. */
+				return sprintf( __( 'We will be back today at %s.', 'hilo-chat' ), $start );
 			}
 			if ( 1 === $i ) {
-				return 'mañana a las ' . $start;
+				/* translators: %s: time, e.g. 09:00. */
+				return sprintf( __( 'We will be back tomorrow at %s.', 'hilo-chat' ), $start );
 			}
-			return 'el ' . $names[ $day ] . ' a las ' . $start;
+			/* translators: 1: weekday name, 2: time, e.g. 09:00. */
+			return sprintf( __( 'We will be back on %1$s at %2$s.', 'hilo-chat' ), $weekday, $start );
 		}
 		return '';
 	}

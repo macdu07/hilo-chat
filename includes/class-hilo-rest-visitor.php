@@ -130,7 +130,7 @@ class HILO_REST_Visitor {
 	 */
 	public static function start( WP_REST_Request $request ) {
 		if ( '' !== (string) $request->get_param( 'website' ) ) { // Honeypot.
-			return new WP_Error( 'hilo_spam', 'No se pudo enviar.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_spam', __( 'Your message could not be sent.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		if ( ! HILO_REST::rate_limit( 'start', 5, 10 * MINUTE_IN_SECONDS ) ) {
 			return HILO_REST::too_many();
@@ -138,7 +138,7 @@ class HILO_REST_Visitor {
 
 		$body = sanitize_textarea_field( (string) $request->get_param( 'message' ) );
 		if ( '' === trim( $body ) ) {
-			return new WP_Error( 'hilo_empty', 'Escribe tu mensaje.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_empty', __( 'Please write your message.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 
 		$user_id = get_current_user_id();
@@ -151,7 +151,7 @@ class HILO_REST_Visitor {
 			$email = $email ? $email : $user->user_email;
 		}
 		if ( '' === $name || ! is_email( $email ) ) {
-			return new WP_Error( 'hilo_identity', 'Escribe tu nombre y un email válido para poder responderte.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_identity', __( 'Please enter your name and a valid email so we can reply.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 
 		$existing = self::current_conversation();
@@ -177,7 +177,7 @@ class HILO_REST_Visitor {
 				)
 			);
 			if ( ! $c ) {
-				return new WP_Error( 'hilo_db', 'No se pudo iniciar el chat. Intenta de nuevo.', array( 'status' => 500 ) );
+				return new WP_Error( 'hilo_db', __( 'The chat could not be started. Please try again.', 'hilo-chat' ), array( 'status' => 500 ) );
 			}
 			HILO_REST::set_token_cookie( $token );
 			$is_new = true;
@@ -267,7 +267,7 @@ class HILO_REST_Visitor {
 	public static function message( WP_REST_Request $request ) {
 		$c = self::current_conversation();
 		if ( ! $c ) {
-			return new WP_Error( 'hilo_no_conversation', 'La conversación no existe.', array( 'status' => 404 ) );
+			return new WP_Error( 'hilo_no_conversation', __( 'This conversation does not exist.', 'hilo-chat' ), array( 'status' => 404 ) );
 		}
 		if ( ! HILO_REST::rate_limit( 'msg', 30, MINUTE_IN_SECONDS ) ) {
 			return HILO_REST::too_many();
@@ -275,7 +275,7 @@ class HILO_REST_Visitor {
 		$body = sanitize_textarea_field( (string) $request->get_param( 'body' ) );
 		$msg  = HILO_DB::add_message( $c, 'visitor', 0, $body );
 		if ( ! $msg ) {
-			return new WP_Error( 'hilo_empty', 'El mensaje está vacío.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_empty', __( 'The message is empty.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		HILO_Presence::clear_typing( $c->id, 'visitor' );
 		HILO_Push::notify_visitor_message( $c, $msg, false );
@@ -291,14 +291,14 @@ class HILO_REST_Visitor {
 	public static function upload( WP_REST_Request $request ) {
 		$c = self::current_conversation();
 		if ( ! $c ) {
-			return new WP_Error( 'hilo_no_conversation', 'La conversación no existe.', array( 'status' => 404 ) );
+			return new WP_Error( 'hilo_no_conversation', __( 'This conversation does not exist.', 'hilo-chat' ), array( 'status' => 404 ) );
 		}
 		if ( ! HILO_REST::rate_limit( 'upload', 10, 10 * MINUTE_IN_SECONDS ) ) {
 			return HILO_REST::too_many();
 		}
 		$files = $request->get_file_params();
 		if ( empty( $files['file'] ) ) {
-			return new WP_Error( 'hilo_upload', 'No se recibió ningún archivo.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_upload', __( 'No file was received.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		$att = HILO_Uploads::store( $files['file'] );
 		if ( is_wp_error( $att ) ) {

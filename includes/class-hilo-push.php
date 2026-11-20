@@ -219,17 +219,20 @@ class HILO_Push {
 			return;
 		}
 
-		$name = $conversation->name ? $conversation->name : 'Visitante';
-		$body = '' !== $message['body'] ? $message['body'] : '📷 Envió una imagen';
 		self::queue(
 			$recipients,
-			array(
-				'title' => $is_new ? 'Nuevo chat · ' . $name : $name,
-				'body'  => wp_html_excerpt( $body, 140, '…' ),
-				'tag'   => 'hilo-conv-' . $conversation->id,
-				'url'   => HILO_Settings::app_url( 'c' . $conversation->id ),
-				'conv'  => (int) $conversation->id,
-			)
+			static function () use ( $conversation, $message, $is_new ) {
+				$name = $conversation->name ? $conversation->name : __( 'Visitor', 'hilo-chat' );
+				$body = '' !== $message['body'] ? $message['body'] : '📷 ' . __( 'Sent an image', 'hilo-chat' );
+				return array(
+					/* translators: %s: visitor name. */
+					'title' => $is_new ? sprintf( __( 'New chat · %s', 'hilo-chat' ), $name ) : $name,
+					'body'  => wp_html_excerpt( $body, 140, '…' ),
+					'tag'   => 'hilo-conv-' . $conversation->id,
+					'url'   => HILO_Settings::app_url( 'c' . $conversation->id ),
+					'conv'  => (int) $conversation->id,
+				);
+			}
 		);
 	}
 
@@ -244,23 +247,26 @@ class HILO_Push {
 		$from = HILO_Presence::agent_public( $from_id );
 		self::queue(
 			array( $agent_id ),
-			array(
-				'title' => 'Te asignaron un chat',
-				'body'  => $from['name'] . ' te transfirió la conversación con ' . ( $conversation->name ? $conversation->name : 'un visitante' ) . '.',
-				'tag'   => 'hilo-conv-' . $conversation->id,
-				'url'   => HILO_Settings::app_url( 'c' . $conversation->id ),
-				'conv'  => (int) $conversation->id,
-			)
+			static function () use ( $conversation, $from ) {
+				return array(
+					'title' => __( 'A chat was assigned to you', 'hilo-chat' ),
+					/* translators: 1: agent name, 2: visitor name. */
+					'body'  => sprintf( __( '%1$s transferred the conversation with %2$s to you.', 'hilo-chat' ), $from['name'], $conversation->name ? $conversation->name : __( 'a visitor', 'hilo-chat' ) ),
+					'tag'   => 'hilo-conv-' . $conversation->id,
+					'url'   => HILO_Settings::app_url( 'c' . $conversation->id ),
+					'conv'  => (int) $conversation->id,
+				);
+			}
 		);
 	}
 
 	/**
 	 * Queues a payload for users; sent after the response is flushed.
 	 *
-	 * @param int[] $user_ids Users.
-	 * @param array $payload  Payload.
+	 * @param int[]          $user_ids Users.
+	 * @param array|callable $payload  Payload, or a callback that builds it (run in each recipient's language).
 	 */
-	public static function queue( array $user_ids, array $payload ) {
+	public static function queue( array $user_ids, $payload ) {
 		self::$queue[] = array( $user_ids, $payload );
 		if ( ! self::$hooked ) {
 			self::$hooked = true;
@@ -280,8 +286,22 @@ class HILO_Push {
 		}
 		foreach ( self::$queue as $item ) {
 			list( $user_ids, $payload ) = $item;
-			foreach ( self::subscriptions_for( $user_ids ) as $sub ) {
-				self::send( $sub, $payload );
+			foreach ( array_unique( $user_ids ) as $user_id ) {
+				$subs = self::subscriptions_for( array( $user_id ) );
+				if ( ! $subs ) {
+					continue;
+				}
+				$data = $payload;
+				if ( is_callable( $payload ) ) {
+					$switched = switch_to_user_locale( $user_id );
+					$data     = $payload();
+					if ( $switched ) {
+						restore_previous_locale();
+					}
+				}
+				foreach ( $subs as $sub ) {
+					self::send( $sub, $data );
+				}
 			}
 		}
 		self::$queue = array();

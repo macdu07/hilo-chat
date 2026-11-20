@@ -7,7 +7,10 @@ Chat de soporte en vivo para WooCommerce, sin servicios externos:
 - Varios agentes con cola **Sin asignar → Tomar / Transferir / Resolver**.
 - **Contexto WooCommerce**: página actual, recorrido, carrito y últimos pedidos (compatible con HPOS).
 - **Respuestas rápidas** (`/atajo` en el compositor, admite `{nombre}`).
-- **Horario de atención** y respuesta por **email** cuando el cliente ya se fue (con enlace para retomar el chat).
+- **Horario de atención** (también 24/7 o 24 h por día) y respuesta por **email** cuando el cliente ya se fue (con enlace para retomar el chat).
+- **Burbuja de saludo** junto al botón, una vez por visita.
+- **Eliminar conversaciones resueltas**, una a una desde la app o todas de una vez (gestores de tienda), además de la purga automática.
+- **Bilingüe (inglés / español)**: el código está en inglés y trae traducción `es_ES`, que se usa también para cualquier otra variante de español (`es_CO`, `es_MX`…).
 
 ## Requisitos
 WordPress 6.9+, WooCommerce 11+, PHP 8.1+ con openssl. Sitio en HTTPS.
@@ -18,6 +21,12 @@ WordPress 6.9+, WooCommerce 11+, PHP 8.1+ con openssl. Sitio en HTTPS.
 3. Da el rol **Agente de chat** a quienes atenderán. Administradores y gestores de tienda ya tienen acceso.
 4. Cada agente abre el panel, lo instala (en iPhone: Compartir → Agregar a inicio) y activa las notificaciones.
 5. Desactiva el modo prueba.
+
+## Idiomas
+- El widget usa el idioma del sitio y la app de agentes, el idioma del perfil de cada agente (Usuarios → Perfil → Idioma).
+- Los textos de los ajustes (título, saludo, etc.) se pueden dejar vacíos: así se usa el texto por defecto traducido. Si los escribes, se muestran tal cual.
+- Para añadir o corregir traducciones: `languages/hilo-chat.pot` (plantilla) y `languages/hilo-chat-es_ES.po`. Tras editar, compila con `wp i18n make-mo languages && wp i18n make-php languages`. También funciona con Loco Translate (los archivos en `wp-content/languages/plugins/` tienen prioridad).
+- Las cadenas del JS se escriben como `__('Text', 'hilo-chat')`; `make-pot` las extrae y PHP envía al navegador solo las traducciones necesarias.
 
 ## Integración
 - Abrir el chat desde cualquier botón: `<a href="#hilo-open">¿Necesitas ayuda?</a>`, `data-hilo-chat-open` o `HiloChat.open()`.

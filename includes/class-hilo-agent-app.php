@@ -112,14 +112,15 @@ class HILO_Agent_App {
 				'id'               => HILO_Settings::app_url(),
 				'name'             => $brand . ' · Chat',
 				'short_name'       => mb_substr( $brand, 0, 12 ) . ' Chat',
-				'description'      => 'Atiende los chats de ' . $brand,
+				/* translators: %s: store name. */
+				'description'      => sprintf( __( 'Answer %s chats', 'hilo-chat' ), $brand ),
 				'start_url'        => HILO_Settings::app_url(),
 				'scope'            => HILO_Settings::app_url(),
 				'display'          => 'standalone',
 				'orientation'      => 'any',
 				'background_color' => '#ffffff',
 				'theme_color'      => sanitize_hex_color( HILO_Settings::get( 'color_primary' ) ) ?: '#1f2937',
-				'lang'             => 'es',
+				'lang'             => HILO_I18n::js_locale(),
 				'icons'            => array_values(
 					array_filter(
 						array(
@@ -164,8 +165,11 @@ class HILO_Agent_App {
 			exit;
 		}
 		if ( ! current_user_can( HILO_CAP ) ) {
-			wp_die( esc_html__( 'No tienes permiso para atender chats. Pide a un administrador el rol "Agente de chat".', 'hilo-chat' ), 403 );
+			wp_die( esc_html__( 'You are not allowed to answer chats. Ask an administrator for the "Chat agent" role.', 'hilo-chat' ), 403 );
 		}
+
+		// The app speaks each agent's profile language.
+		switch_to_user_locale( get_current_user_id() );
 
 		nocache_headers();
 		header( 'Content-Type: text/html; charset=utf-8' );
@@ -187,6 +191,9 @@ class HILO_Agent_App {
 			'logout'    => wp_logout_url( HILO_Settings::app_url() ),
 			'adminUrl'  => current_user_can( 'manage_options' ) ? admin_url( 'admin.php?page=hilo-chat' ) : '',
 			'canManage' => current_user_can( 'manage_options' ),
+			'canPurge'  => current_user_can( 'manage_woocommerce' ) || current_user_can( 'manage_options' ),
+			'locale'    => HILO_I18n::js_locale(),
+			'i18n'      => HILO_I18n::js_strings( 'assets/agent/app.js' ),
 			'me'        => array_merge(
 				HILO_Presence::agent_public( $user->ID ),
 				array( 'id' => (int) $user->ID )

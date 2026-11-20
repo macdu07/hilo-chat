@@ -1,0 +1,1331 @@
+# Copyright (C) 2026 Mauricio Correa
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Hilo Chat 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/hilo-chat\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-20T03:15:33+01:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: hilo-chat\n"
+
+#. Plugin Name of the plugin
+#: hilo-chat.php
+msgid "Hilo Chat"
+msgstr ""
+
+#. Description of the plugin
+#: hilo-chat.php
+msgid "Live support chat for WooCommerce with an installable agent app (PWA), push notifications and customer context."
+msgstr ""
+
+#. Author of the plugin
+#: hilo-chat.php
+msgid "Mauricio Correa"
+msgstr ""
+
+#. Author URI of the plugin
+#: hilo-chat.php
+msgid "https://mauriciocorread.com/"
+msgstr ""
+
+#: includes/class-hilo-admin.php:31
+#: templates/agent-app.php:19
+#: assets/agent/app.js:895
+msgid "Chats"
+msgstr ""
+
+#: includes/class-hilo-admin.php:51
+msgid "Settings"
+msgstr ""
+
+#: includes/class-hilo-admin.php:60
+#: includes/class-hilo-admin.php:113
+msgid "Not allowed."
+msgstr ""
+
+#. translators: %s: store name.
+#: includes/class-hilo-admin.php:145
+#: includes/class-hilo-settings.php:159
+#, php-format
+msgid "%s team"
+msgstr ""
+
+#: includes/class-hilo-admin.php:146
+msgid "Leave it empty to use the default text, translated automatically."
+msgstr ""
+
+#: includes/class-hilo-admin.php:167
+msgid "Settings saved."
+msgstr ""
+
+#. translators: %d: number of conversations.
+#: includes/class-hilo-admin.php:174
+#, php-format
+msgid "%d resolved conversation deleted."
+msgid_plural "%d resolved conversations deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-hilo-admin.php:179
+msgid "<strong>Test mode is on:</strong> only users who can answer chats see the widget. Turn it off to show it to every visitor."
+msgstr ""
+
+#: includes/class-hilo-admin.php:188
+msgid "General"
+msgstr ""
+
+#: includes/class-hilo-admin.php:190
+msgid "Status"
+msgstr ""
+
+#: includes/class-hilo-admin.php:191
+msgid "Show the chat on the store"
+msgstr ""
+
+#: includes/class-hilo-admin.php:192
+msgid "Test mode (only agents see the widget)"
+msgstr ""
+
+#: includes/class-hilo-admin.php:193
+msgid "Hide on the checkout page"
+msgstr ""
+
+#: includes/class-hilo-admin.php:195
+msgid "Brand name"
+msgstr ""
+
+#: includes/class-hilo-admin.php:196
+msgid "Widget title"
+msgstr ""
+
+#: includes/class-hilo-admin.php:197
+msgid "Team name"
+msgstr ""
+
+#: includes/class-hilo-admin.php:198
+#: includes/class-hilo-install.php:134
+msgid "Greeting"
+msgstr ""
+
+#: includes/class-hilo-admin.php:199
+msgid "Greeting bubble"
+msgstr ""
+
+#: includes/class-hilo-admin.php:200
+msgid "Show a message next to the chat button"
+msgstr ""
+
+#: includes/class-hilo-admin.php:201
+msgid "Bubble text"
+msgstr ""
+
+#. translators: %s: number input.
+#: includes/class-hilo-admin.php:206
+#, php-format
+msgid "Appears after %s seconds"
+msgstr ""
+
+#: includes/class-hilo-admin.php:211
+msgid "Shown once per visit to people who have not opened the chat yet. It hides itself after 15 seconds; if the visitor closes it, it stays hidden for 3 days."
+msgstr ""
+
+#: includes/class-hilo-admin.php:213
+msgid "Online text"
+msgstr ""
+
+#: includes/class-hilo-admin.php:214
+msgid "Offline text"
+msgstr ""
+
+#: includes/class-hilo-admin.php:215
+msgid "Position"
+msgstr ""
+
+#: includes/class-hilo-admin.php:216
+msgid "Right"
+msgstr ""
+
+#: includes/class-hilo-admin.php:217
+msgid "Left"
+msgstr ""
+
+#: includes/class-hilo-admin.php:223
+msgid "Business hours"
+msgstr ""
+
+#. translators: %s: timezone name.
+#: includes/class-hilo-admin.php:227
+#, php-format
+msgid "Site timezone: %s. Outside business hours, or when no agent is available, the widget invites visitors to leave a message and the reply arrives by email."
+msgstr ""
+
+#: includes/class-hilo-admin.php:230
+msgid "Open 24 hours, every day"
+msgstr ""
+
+#: includes/class-hilo-admin.php:230
+msgid "(ignores the schedule below)"
+msgstr ""
+
+#: includes/class-hilo-admin.php:235
+msgid "24 h"
+msgstr ""
+
+#: includes/class-hilo-admin.php:237
+msgctxt "time range"
+msgid "to"
+msgstr ""
+
+#: includes/class-hilo-admin.php:245
+msgid "Appearance"
+msgstr ""
+
+#: includes/class-hilo-admin.php:247
+msgid "Colors"
+msgstr ""
+
+#: includes/class-hilo-admin.php:248
+msgid "Primary"
+msgstr ""
+
+#: includes/class-hilo-admin.php:249
+msgid "Accent"
+msgstr ""
+
+#: includes/class-hilo-admin.php:250
+msgid "Soft"
+msgstr ""
+
+#: includes/class-hilo-admin.php:251
+msgid "Primary: header and team bubbles. Accent: buttons and links. Soft: backgrounds."
+msgstr ""
+
+#: includes/class-hilo-admin.php:253
+msgid "Heading font"
+msgstr ""
+
+#: includes/class-hilo-admin.php:253
+msgid "Name of a font already loaded on the site, e.g. <code>\"Tenor Sans\", serif</code>. Use <code>inherit</code> to follow the theme."
+msgstr ""
+
+#: includes/class-hilo-admin.php:254
+msgid "Body font"
+msgstr ""
+
+#: includes/class-hilo-admin.php:255
+msgid "Email logo (URL)"
+msgstr ""
+
+#: includes/class-hilo-admin.php:255
+msgid "Shown on top of the primary color, so a light version works best. Many email clients do not display SVG: use PNG."
+msgstr ""
+
+#: includes/class-hilo-admin.php:256
+msgid "Agent app icon"
+msgstr ""
+
+#: includes/class-hilo-admin.php:259
+msgid "Choose image"
+msgstr ""
+
+#: includes/class-hilo-admin.php:260
+msgid "Use the default icon"
+msgstr ""
+
+#: includes/class-hilo-admin.php:261
+msgid "Square 512×512 px PNG. Leave some space around the logo so Android does not crop it."
+msgstr ""
+
+#: includes/class-hilo-admin.php:267
+msgid "Advanced"
+msgstr ""
+
+#: includes/class-hilo-admin.php:269
+msgid "App path"
+msgstr ""
+
+#: includes/class-hilo-admin.php:269
+msgid "If you change it, agents will need to reinstall the app."
+msgstr ""
+
+#: includes/class-hilo-admin.php:270
+msgid "Push contact email (VAPID)"
+msgstr ""
+
+#: includes/class-hilo-admin.php:271
+msgid "Delete resolved chats after"
+msgstr ""
+
+#: includes/class-hilo-admin.php:271
+msgid "days"
+msgstr ""
+
+#: includes/class-hilo-admin.php:271
+msgid "(0 = never)"
+msgstr ""
+
+#: includes/class-hilo-admin.php:275
+msgid "Save settings"
+msgstr ""
+
+#: includes/class-hilo-admin.php:280
+msgid "Agent app"
+msgstr ""
+
+#: includes/class-hilo-admin.php:281
+msgid "Answer chats from the browser or install it as an app on your phone or computer."
+msgstr ""
+
+#: includes/class-hilo-admin.php:282
+msgid "Open app"
+msgstr ""
+
+#: includes/class-hilo-admin.php:286
+msgid "Agents"
+msgstr ""
+
+#. translators: %s: link to the Users screen.
+#: includes/class-hilo-admin.php:294
+#, php-format
+msgid "To add agents, give them the <strong>Chat agent</strong> role in %s. Administrators and shop managers can answer chats too."
+msgstr ""
+
+#: includes/class-hilo-admin.php:295
+msgid "Users"
+msgstr ""
+
+#: includes/class-hilo-admin.php:301
+msgid "Resolved conversations"
+msgstr ""
+
+#. translators: %d: number of conversations.
+#: includes/class-hilo-admin.php:305
+#, php-format
+msgid "There is %d resolved conversation stored."
+msgid_plural "There are %d resolved conversations stored."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-hilo-admin.php:309
+#: assets/agent/app.js:688
+msgid "Delete all resolved conversations and their attachments? This cannot be undone."
+msgstr ""
+
+#: includes/class-hilo-admin.php:312
+msgid "Delete all resolved conversations now"
+msgstr ""
+
+#: includes/class-hilo-admin.php:323
+msgid "App icon"
+msgstr ""
+
+#. translators: %s: store name.
+#: includes/class-hilo-agent-app.php:116
+#, php-format
+msgid "Answer %s chats"
+msgstr ""
+
+#: includes/class-hilo-agent-app.php:168
+msgid "You are not allowed to answer chats. Ask an administrator for the \"Chat agent\" role."
+msgstr ""
+
+#: includes/class-hilo-db.php:188
+#: assets/agent/app.js:432
+#: assets/widget/widget.js:254
+msgid "Image"
+msgstr ""
+
+#: includes/class-hilo-db.php:192
+#: includes/class-hilo-push.php:225
+msgid "Visitor"
+msgstr ""
+
+#: includes/class-hilo-install.php:134
+msgctxt "quick reply shortcut"
+msgid "hi"
+msgstr ""
+
+#: includes/class-hilo-install.php:134
+msgid "Hi! Thanks for writing to us. How can I help you?"
+msgstr ""
+
+#: includes/class-hilo-install.php:135
+msgctxt "quick reply shortcut"
+msgid "shipping"
+msgstr ""
+
+#: includes/class-hilo-install.php:135
+msgid "Shipping times"
+msgstr ""
+
+#: includes/class-hilo-install.php:135
+msgid "Orders ship within 1 to 2 business days. As soon as yours ships, you will receive the tracking number by email."
+msgstr ""
+
+#: includes/class-hilo-install.php:136
+msgctxt "quick reply shortcut"
+msgid "thanks"
+msgstr ""
+
+#: includes/class-hilo-install.php:136
+msgid "Goodbye"
+msgstr ""
+
+#: includes/class-hilo-install.php:136
+msgid "Thank you! If you need anything else, we are here. Have a lovely day 💛"
+msgstr ""
+
+#. translators: 1: agent name, 2: store name.
+#: includes/class-hilo-mailer.php:74
+#, php-format
+msgid "%1$s replied to you at %2$s"
+msgstr ""
+
+#: includes/class-hilo-push.php:226
+msgid "Sent an image"
+msgstr ""
+
+#. translators: %s: visitor name.
+#: includes/class-hilo-push.php:229
+#, php-format
+msgid "New chat · %s"
+msgstr ""
+
+#: includes/class-hilo-push.php:252
+msgid "A chat was assigned to you"
+msgstr ""
+
+#. translators: 1: agent name, 2: visitor name.
+#: includes/class-hilo-push.php:254
+#, php-format
+msgid "%1$s transferred the conversation with %2$s to you."
+msgstr ""
+
+#. translators: 1: agent name, 2: visitor name.
+#: includes/class-hilo-push.php:254
+msgid "a visitor"
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:72
+msgid "Conversation not found."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:198
+#: includes/class-hilo-rest-visitor.php:278
+msgid "The message is empty."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:218
+#: includes/class-hilo-rest-visitor.php:301
+msgid "No file was received."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:263
+msgid "That user is not an agent."
+msgstr ""
+
+#. translators: %s: agent name.
+#: includes/class-hilo-rest-agent.php:277
+#, php-format
+msgid "%s released the conversation."
+msgstr ""
+
+#. translators: %s: agent name.
+#: includes/class-hilo-rest-agent.php:285
+#, php-format
+msgid "%s joined the conversation."
+msgstr ""
+
+#. translators: 1: agent name, 2: agent name.
+#: includes/class-hilo-rest-agent.php:294
+#, php-format
+msgid "%1$s transferred the conversation to %2$s."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:324
+msgid "The conversation was marked as resolved."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:357
+msgid "Only resolved conversations can be deleted."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:370
+msgid "Only store managers can delete all resolved conversations."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:426
+msgid "Shortcut and text are required."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:459
+msgid "This device could not be registered for notifications."
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:485
+msgid "Notifications are on ✅"
+msgstr ""
+
+#: includes/class-hilo-rest-agent.php:486
+msgid "This is how we will let you know when a new message arrives."
+msgstr ""
+
+#: includes/class-hilo-rest-visitor.php:133
+msgid "Your message could not be sent."
+msgstr ""
+
+#: includes/class-hilo-rest-visitor.php:141
+#: assets/widget/widget.js:485
+msgid "Please write your message."
+msgstr ""
+
+#: includes/class-hilo-rest-visitor.php:154
+msgid "Please enter your name and a valid email so we can reply."
+msgstr ""
+
+#: includes/class-hilo-rest-visitor.php:180
+msgid "The chat could not be started. Please try again."
+msgstr ""
+
+#: includes/class-hilo-rest-visitor.php:270
+#: includes/class-hilo-rest-visitor.php:294
+msgid "This conversation does not exist."
+msgstr ""
+
+#: includes/class-hilo-rest.php:129
+msgid "You are sending too many messages. Please wait a moment."
+msgstr ""
+
+#. translators: %s: weekday name.
+#: includes/class-hilo-schedule.php:65
+msgid "We will be back tomorrow."
+msgstr ""
+
+#. translators: %s: weekday name.
+#: includes/class-hilo-schedule.php:65
+#, php-format
+msgid "We will be back on %s."
+msgstr ""
+
+#. translators: %s: time, e.g. 09:00.
+#: includes/class-hilo-schedule.php:69
+#, php-format
+msgid "We will be back today at %s."
+msgstr ""
+
+#. translators: %s: time, e.g. 09:00.
+#: includes/class-hilo-schedule.php:73
+#, php-format
+msgid "We will be back tomorrow at %s."
+msgstr ""
+
+#. translators: 1: weekday name, 2: time, e.g. 09:00.
+#: includes/class-hilo-schedule.php:76
+#, php-format
+msgid "We will be back on %1$s at %2$s."
+msgstr ""
+
+#: includes/class-hilo-settings.php:122
+msgid "Let's talk"
+msgstr ""
+
+#: includes/class-hilo-settings.php:123
+msgid "Hi! 👋 Do you have a question about a product or your order? Write to us."
+msgstr ""
+
+#: includes/class-hilo-settings.php:124
+msgid "Online · we reply in minutes"
+msgstr ""
+
+#: includes/class-hilo-settings.php:125
+msgid "Leave us a message and we will reply by email as soon as possible."
+msgstr ""
+
+#: includes/class-hilo-settings.php:126
+msgid "Any questions? We are here to help 💬"
+msgstr ""
+
+#: includes/class-hilo-uploads.php:53
+msgid "The file could not be received."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:56
+msgid "The file exceeds the 8 MB limit."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:63
+msgid "Only images (JPG, PNG, WEBP, GIF) or PDF files are allowed."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:67
+msgid "The image is not valid."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:74
+#: includes/class-hilo-uploads.php:109
+msgid "The file could not be saved."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:92
+msgid "The image could not be processed."
+msgstr ""
+
+#: includes/class-hilo-uploads.php:101
+msgid "The image could not be saved."
+msgstr ""
+
+#: templates/agent-app.php:34
+msgid "Loading"
+msgstr ""
+
+#: templates/agent-app.php:36
+msgid "Turn on JavaScript to use the chat app."
+msgstr ""
+
+#. translators: %s: customer name.
+#: templates/email-reply.php:37
+#, php-format
+msgid "Hi %s,"
+msgstr ""
+
+#. translators: %s: customer name.
+#: templates/email-reply.php:37
+msgid "Hi,"
+msgstr ""
+
+#. translators: 1: agent name, 2: store name.
+#: templates/email-reply.php:43
+#, php-format
+msgid "%1$s replied to your message in the %2$s chat:"
+msgstr ""
+
+#: templates/email-reply.php:52
+msgid "View attachment"
+msgstr ""
+
+#: templates/email-reply.php:58
+msgid "Continue the conversation"
+msgstr ""
+
+#. translators: %s: link to the store.
+#: templates/email-reply.php:63
+#, php-format
+msgid "You can also reply by opening the chat at %s."
+msgstr ""
+
+#: assets/agent/app.js:71
+msgid "now"
+msgstr ""
+
+#: assets/agent/app.js:72
+#, js-format
+msgid "%d min"
+msgstr ""
+
+#: assets/agent/app.js:76
+msgid "yesterday"
+msgstr ""
+
+#: assets/agent/app.js:83
+msgid "Today"
+msgstr ""
+
+#: assets/agent/app.js:84
+msgid "Yesterday"
+msgstr ""
+
+#: assets/agent/app.js:88
+msgid "No recent activity"
+msgstr ""
+
+#: assets/agent/app.js:90
+#: assets/agent/app.js:283
+msgid "In the store now"
+msgstr ""
+
+#: assets/agent/app.js:91
+#, js-format
+msgid "Seen %d min ago"
+msgstr ""
+
+#: assets/agent/app.js:92
+#, js-format
+msgid "Seen %s"
+msgstr ""
+
+#: assets/agent/app.js:142
+#: assets/widget/widget.js:76
+msgid "Connection error"
+msgstr ""
+
+#: assets/agent/app.js:184
+#: assets/agent/app.js:946
+#: assets/agent/app.js:1097
+msgid "Available"
+msgstr ""
+
+#: assets/agent/app.js:185
+msgid "Menu"
+msgstr ""
+
+#: assets/agent/app.js:186
+msgid "Offline. Retrying…"
+msgstr ""
+
+#: assets/agent/app.js:189
+msgid "Search by name or email"
+msgstr ""
+
+#: assets/agent/app.js:189
+msgid "Search"
+msgstr ""
+
+#: assets/agent/app.js:208
+#: assets/agent/app.js:409
+msgid "Customer details"
+msgstr ""
+
+#: assets/agent/app.js:220
+msgid "Mine"
+msgstr ""
+
+#: assets/agent/app.js:221
+#: assets/agent/app.js:277
+msgid "Unassigned"
+msgstr ""
+
+#: assets/agent/app.js:222
+msgid "Open"
+msgstr ""
+
+#: assets/agent/app.js:223
+msgid "Resolved"
+msgstr ""
+
+#: assets/agent/app.js:252
+msgid "You"
+msgstr ""
+
+#: assets/agent/app.js:254
+msgid "Another agent"
+msgstr ""
+
+#: assets/agent/app.js:265
+msgid "Delete all resolved"
+msgstr ""
+
+#: assets/agent/app.js:269
+msgid "You have no assigned chats."
+msgstr ""
+
+#: assets/agent/app.js:269
+msgid "No chats waiting. ✨"
+msgstr ""
+
+#: assets/agent/app.js:269
+msgid "No open chats."
+msgstr ""
+
+#: assets/agent/app.js:269
+msgid "No recently resolved chats."
+msgstr ""
+
+#: assets/agent/app.js:270
+msgid "No results."
+msgstr ""
+
+#: assets/agent/app.js:275
+#, js-format
+msgid "You: %s"
+msgstr ""
+
+#: assets/agent/app.js:304
+msgid "Choose a conversation"
+msgstr ""
+
+#: assets/agent/app.js:305
+msgid "New chats show up in “Unassigned”. Reply to one to take it."
+msgstr ""
+
+#: assets/agent/app.js:364
+msgid "Write a reply…"
+msgstr ""
+
+#: assets/agent/app.js:364
+msgid "Write a reply…  ( / for quick replies)"
+msgstr ""
+
+#: assets/agent/app.js:364
+msgid "Reply"
+msgstr ""
+
+#: assets/agent/app.js:367
+#: assets/agent/app.js:642
+#: assets/agent/app.js:1085
+msgid "Quick replies"
+msgstr ""
+
+#: assets/agent/app.js:368
+msgid "Attach file"
+msgstr ""
+
+#: assets/agent/app.js:368
+msgid "Attach"
+msgstr ""
+
+#: assets/agent/app.js:371
+#: assets/widget/widget.js:167
+msgid "Send"
+msgstr ""
+
+#: assets/agent/app.js:380
+msgid "Loading…"
+msgstr ""
+
+#: assets/agent/app.js:389
+msgid "Back"
+msgstr ""
+
+#: assets/agent/app.js:394
+msgid "Typing…"
+msgstr ""
+
+#: assets/agent/app.js:400
+msgid "Reopen"
+msgstr ""
+
+#: assets/agent/app.js:401
+#: assets/agent/app.js:707
+msgid "Delete conversation"
+msgstr ""
+
+#: assets/agent/app.js:404
+msgid "Take chat"
+msgstr ""
+
+#: assets/agent/app.js:404
+msgid "Take"
+msgstr ""
+
+#: assets/agent/app.js:406
+msgid "Mark as resolved"
+msgstr ""
+
+#: assets/agent/app.js:406
+msgid "Resolve"
+msgstr ""
+
+#: assets/agent/app.js:408
+msgid "More options"
+msgstr ""
+
+#: assets/agent/app.js:416
+msgid "This chat has no agent yet. If you reply, it will be assigned to you."
+msgstr ""
+
+#: assets/agent/app.js:419
+#, js-format
+msgid "%s is handling this chat."
+msgstr ""
+
+#: assets/agent/app.js:436
+#: assets/widget/widget.js:258
+msgid "File"
+msgstr ""
+
+#: assets/agent/app.js:440
+#: assets/widget/widget.js:263
+msgid "Not sent"
+msgstr ""
+
+#: assets/agent/app.js:440
+#: assets/widget/widget.js:263
+msgid "Sending…"
+msgstr ""
+
+#: assets/agent/app.js:467
+#: assets/widget/widget.js:300
+msgid "Seen"
+msgstr ""
+
+#: assets/agent/app.js:550
+msgid "Could not send"
+msgstr ""
+
+#: assets/agent/app.js:570
+msgid "The file could not be uploaded"
+msgstr ""
+
+#: assets/agent/app.js:586
+#, js-format
+msgid "No quick replies for “/%s”."
+msgstr ""
+
+#: assets/agent/app.js:586
+msgid "No quick replies yet."
+msgstr ""
+
+#: assets/agent/app.js:587
+msgid "Create one"
+msgstr ""
+
+#: assets/agent/app.js:616
+msgid "shortcut (e.g. shipping)"
+msgstr ""
+
+#: assets/agent/app.js:617
+msgid "Title"
+msgstr ""
+
+#: assets/agent/app.js:618
+msgid "Reply text. Use {name} for the customer name."
+msgstr ""
+
+#: assets/agent/app.js:619
+msgid "Save"
+msgstr ""
+
+#: assets/agent/app.js:620
+msgid "New"
+msgstr ""
+
+#: assets/agent/app.js:629
+msgid "Delete"
+msgstr ""
+
+#: assets/agent/app.js:630
+#, js-format
+msgid "Delete /%s?"
+msgstr ""
+
+#: assets/agent/app.js:639
+msgid "Saved"
+msgstr ""
+
+#: assets/agent/app.js:642
+msgid "Type / in the chat to insert them."
+msgstr ""
+
+#: assets/agent/app.js:659
+msgid "Chat resolved"
+msgstr ""
+
+#: assets/agent/app.js:681
+#, js-format
+msgid "Delete the conversation with %s? This cannot be undone."
+msgstr ""
+
+#: assets/agent/app.js:684
+msgid "Conversation deleted"
+msgstr ""
+
+#: assets/agent/app.js:691
+#, js-format
+msgid "%d conversation deleted"
+msgstr ""
+
+#: assets/agent/app.js:691
+#, js-format
+msgid "%d conversations deleted"
+msgstr ""
+
+#: assets/agent/app.js:702
+msgid "Assign to me"
+msgstr ""
+
+#: assets/agent/app.js:702
+#, js-format
+msgid "Transfer to %s"
+msgstr ""
+
+#: assets/agent/app.js:702
+msgid "online"
+msgstr ""
+
+#: assets/agent/app.js:704
+msgid "Release (unassigned)"
+msgstr ""
+
+#: assets/agent/app.js:706
+msgid "Copy email"
+msgstr ""
+
+#: assets/agent/app.js:711
+msgid "Copied"
+msgstr ""
+
+#: assets/agent/app.js:711
+msgid "Copy:"
+msgstr ""
+
+#: assets/agent/app.js:734
+#: assets/agent/app.js:1135
+msgid "Close"
+msgstr ""
+
+#: assets/agent/app.js:735
+msgid "Customer"
+msgstr ""
+
+#: assets/agent/app.js:745
+msgid "Registered customer"
+msgstr ""
+
+#: assets/agent/app.js:745
+msgid "Guest"
+msgstr ""
+
+#: assets/agent/app.js:746
+#, js-format
+msgid "%d order"
+msgstr ""
+
+#: assets/agent/app.js:746
+#, js-format
+msgid "%d orders"
+msgstr ""
+
+#: assets/agent/app.js:748
+msgid "View profile in WordPress"
+msgstr ""
+
+#: assets/agent/app.js:752
+msgid "Loading details…"
+msgstr ""
+
+#: assets/agent/app.js:756
+msgid "Viewing now"
+msgstr ""
+
+#: assets/agent/app.js:763
+#: assets/agent/app.js:770
+msgid "Cart"
+msgstr ""
+
+#: assets/agent/app.js:770
+msgid "Empty"
+msgstr ""
+
+#: assets/agent/app.js:774
+msgid "Recent orders"
+msgstr ""
+
+#: assets/agent/app.js:782
+msgid "Orders"
+msgstr ""
+
+#: assets/agent/app.js:782
+msgid "No orders with this email."
+msgstr ""
+
+#: assets/agent/app.js:786
+msgid "Journey"
+msgstr ""
+
+#: assets/agent/app.js:792
+msgid "Came from:"
+msgstr ""
+
+#: assets/agent/app.js:794
+#, js-format
+msgid "Started: %s"
+msgstr ""
+
+#: assets/agent/app.js:795
+msgid "Details"
+msgstr ""
+
+#: assets/agent/app.js:800
+msgid "mobile"
+msgstr ""
+
+#: assets/agent/app.js:800
+msgid "desktop"
+msgstr ""
+
+#: assets/agent/app.js:946
+#: assets/agent/app.js:1097
+msgid "Away"
+msgstr ""
+
+#: assets/agent/app.js:947
+msgid "You receive chats and notifications. Tap to go away."
+msgstr ""
+
+#: assets/agent/app.js:947
+msgid "You are not notified about new chats. Tap to become available."
+msgstr ""
+
+#: assets/agent/app.js:954
+msgid "You are available"
+msgstr ""
+
+#: assets/agent/app.js:954
+msgid "You are now away"
+msgstr ""
+
+#: assets/agent/app.js:1004
+msgid "This browser does not support push notifications."
+msgstr ""
+
+#: assets/agent/app.js:1007
+msgid "Notification permission denied"
+msgstr ""
+
+#: assets/agent/app.js:1013
+msgid "Notifications enabled"
+msgstr ""
+
+#: assets/agent/app.js:1017
+#, js-format
+msgid "Could not enable them: %s"
+msgstr ""
+
+#: assets/agent/app.js:1025
+msgid "Notifications disabled on this device"
+msgstr ""
+
+#: assets/agent/app.js:1034
+msgid "Turn on notifications to hear about every chat, even when the app is closed."
+msgstr ""
+
+#: assets/agent/app.js:1035
+msgid "Turn on"
+msgstr ""
+
+#: assets/agent/app.js:1039
+msgid "On iPhone, add the app to your home screen to receive notifications."
+msgstr ""
+
+#: assets/agent/app.js:1040
+msgid "How"
+msgstr ""
+
+#: assets/agent/app.js:1044
+msgid "Notifications are blocked. Allow them for this site in your browser settings."
+msgstr ""
+
+#: assets/agent/app.js:1051
+msgid "Install on iPhone / iPad"
+msgstr ""
+
+#: assets/agent/app.js:1053
+msgid "Open this page in Safari."
+msgstr ""
+
+#: assets/agent/app.js:1054
+msgid "Tap the Share button (the square with an arrow pointing up)."
+msgstr ""
+
+#: assets/agent/app.js:1055
+msgid "Choose “Add to Home Screen”."
+msgstr ""
+
+#: assets/agent/app.js:1056
+msgid "Open the app from the new icon and turn on notifications."
+msgstr ""
+
+#: assets/agent/app.js:1058
+msgid "Requires iOS 16.4 or later."
+msgstr ""
+
+#: assets/agent/app.js:1063
+msgid "App installed"
+msgstr ""
+
+#: assets/agent/app.js:1069
+msgid "Install the app"
+msgstr ""
+
+#: assets/agent/app.js:1069
+msgid "Open the browser menu (⋮) and choose “Install app” or “Add to Home screen”. In desktop Chrome there is also an install icon in the address bar."
+msgstr ""
+
+#: assets/agent/app.js:1077
+msgid "Install app"
+msgstr ""
+
+#: assets/agent/app.js:1079
+msgid "Send a test notification"
+msgstr ""
+
+#: assets/agent/app.js:1079
+msgid "Sent"
+msgstr ""
+
+#: assets/agent/app.js:1080
+msgid "Turn off notifications here"
+msgstr ""
+
+#: assets/agent/app.js:1082
+msgid "Turn on notifications"
+msgstr ""
+
+#: assets/agent/app.js:1084
+msgid "Mute sound"
+msgstr ""
+
+#: assets/agent/app.js:1084
+msgid "Turn on sound"
+msgstr ""
+
+#: assets/agent/app.js:1086
+#: assets/agent/app.js:1093
+msgid "Team"
+msgstr ""
+
+#: assets/agent/app.js:1087
+msgid "Chat settings"
+msgstr ""
+
+#: assets/agent/app.js:1088
+msgid "Log out"
+msgstr ""
+
+#: assets/agent/app.js:1094
+msgid "Customers see the chat as Online."
+msgstr ""
+
+#: assets/agent/app.js:1094
+msgid "Offline: no agents available."
+msgstr ""
+
+#: assets/agent/app.js:1094
+msgid "Outside business hours."
+msgstr ""
+
+#: assets/agent/app.js:1096
+msgid "you"
+msgstr ""
+
+#: assets/agent/app.js:1097
+msgid "Offline"
+msgstr ""
+
+#: assets/widget/widget.js:128
+#: assets/widget/widget.js:319
+#: assets/widget/widget.js:342
+msgid "Open chat"
+msgstr ""
+
+#: assets/widget/widget.js:139
+msgid "Close chat"
+msgstr ""
+
+#: assets/widget/widget.js:147
+msgid "Type your question…"
+msgstr ""
+
+#: assets/widget/widget.js:147
+msgid "Your message"
+msgstr ""
+
+#: assets/widget/widget.js:148
+msgid "Your name"
+msgstr ""
+
+#: assets/widget/widget.js:149
+msgid "Your email"
+msgstr ""
+
+#: assets/widget/widget.js:152
+#: assets/widget/widget.js:233
+msgid "Send message"
+msgstr ""
+
+#: assets/widget/widget.js:158
+#, js-format
+msgid "Writing as %1$s (%2$s)"
+msgstr ""
+
+#: assets/widget/widget.js:158
+msgid "We will only use your email to reply if you leave before we answer."
+msgstr ""
+
+#: assets/widget/widget.js:166
+msgid "Type a message…"
+msgstr ""
+
+#: assets/widget/widget.js:166
+msgid "Type a message"
+msgstr ""
+
+#: assets/widget/widget.js:169
+msgid "Attach an image or PDF"
+msgstr ""
+
+#: assets/widget/widget.js:183
+msgid "Close message"
+msgstr ""
+
+#: assets/widget/widget.js:215
+msgid "Online"
+msgstr ""
+
+#: assets/widget/widget.js:215
+msgid "Offline · we will reply by email"
+msgstr ""
+
+#: assets/widget/widget.js:233
+msgid "Leave a message"
+msgstr ""
+
+#: assets/widget/widget.js:241
+msgid "Hi! How can we help you?"
+msgstr ""
+
+#: assets/widget/widget.js:260
+msgid "Uploading…"
+msgstr ""
+
+#: assets/widget/widget.js:308
+msgid "Conversation resolved. If you write again, we will reopen it."
+msgstr ""
+
+#: assets/widget/widget.js:319
+#, js-format
+msgid "Open chat, %d new messages"
+msgstr ""
+
+#: assets/widget/widget.js:342
+msgid "Minimize chat"
+msgstr ""
+
+#: assets/widget/widget.js:468
+msgid "New message"
+msgstr ""
+
+#: assets/widget/widget.js:486
+msgid "Please enter your name."
+msgstr ""
+
+#: assets/widget/widget.js:487
+msgid "Please enter a valid email so we can reply."
+msgstr ""
+
+#: assets/widget/widget.js:502
+#, js-format
+msgid "We got your message. We will reply to %s and you will also see it here."
+msgstr ""
+
+#: assets/widget/widget.js:509
+msgid "We could not send your message. Please try again."
+msgstr ""
+
+#: assets/widget/widget.js:552
+msgid "Could not send."
+msgstr ""
+
+#: assets/widget/widget.js:581
+msgid "The file is too large."
+msgstr ""
+
+#: assets/widget/widget.js:599
+msgid "The file could not be uploaded."
+msgstr ""

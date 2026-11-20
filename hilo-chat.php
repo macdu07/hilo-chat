@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name:       Hilo Chat
- * Description:       Chat de soporte en vivo para WooCommerce con panel de agentes instalable (PWA), notificaciones push y contexto del cliente.
+ * Description:       Live support chat for WooCommerce with an installable agent app (PWA), push notifications and customer context.
  * Version:           1.0.0
  * Requires at least: 6.9
  * Requires PHP:      8.1
@@ -51,6 +51,7 @@ function hilo_bootstrap() {
 
 	$files = array(
 		'settings',
+		'i18n',
 		'db',
 		'schedule',
 		'presence',

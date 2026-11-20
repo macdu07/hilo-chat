@@ -50,28 +50,28 @@ class HILO_Uploads {
 	 */
 	public static function store( $file ) {
 		if ( empty( $file['tmp_name'] ) || ! empty( $file['error'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
-			return new WP_Error( 'hilo_upload', 'No se pudo recibir el archivo.', array( 'status' => 400 ) );
+			return new WP_Error( 'hilo_upload', __( 'The file could not be received.', 'hilo-chat' ), array( 'status' => 400 ) );
 		}
 		if ( (int) $file['size'] > self::MAX_BYTES ) {
-			return new WP_Error( 'hilo_upload_size', 'El archivo supera el máximo de 8 MB.', array( 'status' => 413 ) );
+			return new WP_Error( 'hilo_upload_size', __( 'The file exceeds the 8 MB limit.', 'hilo-chat' ), array( 'status' => 413 ) );
 		}
 
 		$check = wp_check_filetype_and_ext( $file['tmp_name'], $file['name'], self::$types );
 		$ext   = $check['ext'];
 		$mime  = $check['type'];
 		if ( ! $ext || ! $mime || ! in_array( $mime, self::$types, true ) ) {
-			return new WP_Error( 'hilo_upload_type', 'Solo se permiten imágenes (JPG, PNG, WEBP, GIF) o PDF.', array( 'status' => 415 ) );
+			return new WP_Error( 'hilo_upload_type', __( 'Only images (JPG, PNG, WEBP, GIF) or PDF files are allowed.', 'hilo-chat' ), array( 'status' => 415 ) );
 		}
 		$is_image = 0 === strpos( $mime, 'image/' );
 		if ( $is_image && ! @getimagesize( $file['tmp_name'] ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
-			return new WP_Error( 'hilo_upload_type', 'La imagen no es válida.', array( 'status' => 415 ) );
+			return new WP_Error( 'hilo_upload_type', __( 'The image is not valid.', 'hilo-chat' ), array( 'status' => 415 ) );
 		}
 
 		$base   = self::base();
 		$subdir = gmdate( 'Y/m' );
 		$dir    = $base['dir'] . '/' . $subdir;
 		if ( ! wp_mkdir_p( $dir ) ) {
-			return new WP_Error( 'hilo_upload', 'No se pudo guardar el archivo.', array( 'status' => 500 ) );
+			return new WP_Error( 'hilo_upload', __( 'The file could not be saved.', 'hilo-chat' ), array( 'status' => 500 ) );
 		}
 		if ( ! file_exists( $dir . '/index.html' ) ) {
 			file_put_contents( $dir . '/index.html', '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions
@@ -89,7 +89,7 @@ class HILO_Uploads {
 			// Re-encode: strips EXIF/GPS metadata and neutralizes polyglot files.
 			$editor = wp_get_image_editor( $file['tmp_name'] );
 			if ( is_wp_error( $editor ) ) {
-				return new WP_Error( 'hilo_upload', 'No se pudo procesar la imagen.', array( 'status' => 415 ) );
+				return new WP_Error( 'hilo_upload', __( 'The image could not be processed.', 'hilo-chat' ), array( 'status' => 415 ) );
 			}
 			$size = $editor->get_size();
 			if ( $size['width'] > self::MAX_SIDE || $size['height'] > self::MAX_SIDE ) {
@@ -98,7 +98,7 @@ class HILO_Uploads {
 			$editor->set_quality( 82 );
 			$saved = $editor->save( $dest, $mime );
 			if ( is_wp_error( $saved ) ) {
-				return new WP_Error( 'hilo_upload', 'No se pudo guardar la imagen.', array( 'status' => 500 ) );
+				return new WP_Error( 'hilo_upload', __( 'The image could not be saved.', 'hilo-chat' ), array( 'status' => 500 ) );
 			}
 			$dest          = $saved['path'];
 			$name          = wp_basename( $dest );
@@ -106,7 +106,7 @@ class HILO_Uploads {
 			$data['h']     = (int) $saved['height'];
 		} else {
 			if ( ! move_uploaded_file( $file['tmp_name'], $dest ) ) {
-				return new WP_Error( 'hilo_upload', 'No se pudo guardar el archivo.', array( 'status' => 500 ) );
+				return new WP_Error( 'hilo_upload', __( 'The file could not be saved.', 'hilo-chat' ), array( 'status' => 500 ) );
 			}
 			if ( $is_image ) {
 				$dim       = getimagesize( $dest );

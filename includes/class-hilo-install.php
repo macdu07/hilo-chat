@@ -131,9 +131,9 @@ CREATE TABLE {$p}hilo_quick_replies (
 		$table = $p . 'hilo_quick_replies';
 		if ( ! (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$now = current_time( 'mysql', true );
-			$wpdb->insert( $table, array( 'shortcut' => 'hola', 'title' => 'Saludo', 'body' => '¡Hola! Gracias por escribirnos, ¿En qué te puedo ayudar?', 'created_at' => $now ) );
-			$wpdb->insert( $table, array( 'shortcut' => 'envio', 'title' => 'Tiempos de envío', 'body' => 'Los pedidos se despachan en 1 a 2 días hábiles. Apenas salga te llegará el número de guía a tu correo.', 'created_at' => $now ) );
-			$wpdb->insert( $table, array( 'shortcut' => 'gracias', 'title' => 'Despedida', 'body' => '¡Gracias a ti! Si necesitas algo más, aquí estamos. Que tengas un lindo día 💛', 'created_at' => $now ) );
+			$wpdb->insert( $table, array( 'shortcut' => _x( 'hi', 'quick reply shortcut', 'hilo-chat' ), 'title' => __( 'Greeting', 'hilo-chat' ), 'body' => __( 'Hi! Thanks for writing to us. How can I help you?', 'hilo-chat' ), 'created_at' => $now ) );
+			$wpdb->insert( $table, array( 'shortcut' => _x( 'shipping', 'quick reply shortcut', 'hilo-chat' ), 'title' => __( 'Shipping times', 'hilo-chat' ), 'body' => __( 'Orders ship within 1 to 2 business days. As soon as yours ships, you will receive the tracking number by email.', 'hilo-chat' ), 'created_at' => $now ) );
+			$wpdb->insert( $table, array( 'shortcut' => _x( 'thanks', 'quick reply shortcut', 'hilo-chat' ), 'title' => __( 'Goodbye', 'hilo-chat' ), 'body' => __( 'Thank you! If you need anything else, we are here. Have a lovely day 💛', 'hilo-chat' ), 'created_at' => $now ) );
 		}
 	}
 
@@ -144,7 +144,7 @@ CREATE TABLE {$p}hilo_quick_replies (
 		if ( ! get_role( 'hilo_agent' ) ) {
 			add_role(
 				'hilo_agent',
-				'Agente de chat',
+				'Chat agent',
 				array(
 					'read'   => true,
 					HILO_CAP  => true,

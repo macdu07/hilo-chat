@@ -6,6 +6,15 @@
 	if (!CFG || window.__hiloChatLoaded) return;
 	window.__hiloChatLoaded = true;
 
+	/* i18n: strings are English; translations come from PHP (CFG.i18n). */
+	var I18N = CFG.i18n || {};
+	var LOCALE = CFG.locale || undefined;
+	function __(s) { return Object.prototype.hasOwnProperty.call(I18N, s) ? I18N[s] : s; }
+	function fmt(s) {
+		var args = arguments, i = 0;
+		return String(s).replace(/%(\d+)\$[sd]|%[sd]/g, function (m, pos) { return String(pos ? args[Number(pos)] : args[++i]); });
+	}
+
 	var LS_KEY = 'hilo_chat_v1';
 	var POLL_OPEN = 3000, POLL_CLOSED = 20000, POLL_HIDDEN = 60000, CTX_EVERY = 60000;
 
@@ -46,9 +55,9 @@
 	}
 	function timeLabel(ts) {
 		var d = new Date(ts * 1000), now = new Date();
-		var hm = d.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+		var hm = d.toLocaleTimeString(LOCALE, { hour: '2-digit', minute: '2-digit' });
 		if (d.toDateString() === now.toDateString()) return hm;
-		return d.toLocaleDateString('es', { day: 'numeric', month: 'short' }) + ' · ' + hm;
+		return d.toLocaleDateString(LOCALE, { day: 'numeric', month: 'short' }) + ' · ' + hm;
 	}
 	function api(method, path, data, isForm) {
 		var url = CFG.rest + path;
@@ -64,7 +73,7 @@
 		}
 		return fetch(url, opts).then(function (r) {
 			return r.json().catch(function () { return {}; }).then(function (j) {
-				if (!r.ok) { var e = new Error(j && j.message ? j.message : 'Error de conexión'); e.status = r.status; throw e; }
+				if (!r.ok) { var e = new Error(j && j.message ? j.message : __('Connection error', 'hilo-chat')); e.status = r.status; throw e; }
 				return j;
 			});
 		});
@@ -116,7 +125,7 @@
 	ui.css = el('link', { rel: 'stylesheet', href: CFG.css });
 	ui.badge = el('span', { class: 'hc-badge', 'aria-hidden': 'true' });
 	ui.launcher = el('button', {
-		class: 'hc-launcher', type: 'button', 'aria-label': 'Abrir chat', 'aria-expanded': 'false',
+		class: 'hc-launcher', type: 'button', 'aria-label': __('Open chat', 'hilo-chat'), 'aria-expanded': 'false',
 		onclick: function () { toggle(); }
 	}, [el('span', { class: 'hc-launcher-icon hc-i-chat', html: ICON.chat }), el('span', { class: 'hc-launcher-icon hc-i-close', html: ICON.down }), ui.badge]);
 
@@ -127,7 +136,7 @@
 	ui.header = el('header', { class: 'hc-header' }, [
 		ui.agentAvatar,
 		el('div', { class: 'hc-header-text' }, [ui.headerName, el('div', { class: 'hc-status' }, [ui.statusDot, ui.statusText])]),
-		el('button', { class: 'hc-icon-btn hc-close', type: 'button', 'aria-label': 'Cerrar chat', html: ICON.close, onclick: function () { toggle(false); } })
+		el('button', { class: 'hc-icon-btn hc-close', type: 'button', 'aria-label': __('Close chat', 'hilo-chat'), html: ICON.close, onclick: function () { toggle(false); } })
 	]);
 
 	ui.list = el('div', { class: 'hc-list', role: 'log', 'aria-live': 'polite', 'aria-relevant': 'additions' });
@@ -135,18 +144,18 @@
 	ui.scroller = el('div', { class: 'hc-scroll' }, [ui.list, ui.typing]);
 
 	// Intro form (first message).
-	ui.introMsg = el('textarea', { class: 'hc-input hc-textarea', rows: '3', placeholder: 'Escribe tu pregunta…', 'aria-label': 'Tu mensaje', maxlength: '2000', required: true });
-	ui.introName = el('input', { class: 'hc-input', type: 'text', autocomplete: 'name', placeholder: 'Tu nombre', 'aria-label': 'Tu nombre', maxlength: '120', required: true });
-	ui.introEmail = el('input', { class: 'hc-input', type: 'email', autocomplete: 'email', placeholder: 'Tu email', 'aria-label': 'Tu email', maxlength: '190', required: true });
+	ui.introMsg = el('textarea', { class: 'hc-input hc-textarea', rows: '3', placeholder: __('Type your question…', 'hilo-chat'), 'aria-label': __('Your message', 'hilo-chat'), maxlength: '2000', required: true });
+	ui.introName = el('input', { class: 'hc-input', type: 'text', autocomplete: 'name', placeholder: __('Your name', 'hilo-chat'), 'aria-label': __('Your name', 'hilo-chat'), maxlength: '120', required: true });
+	ui.introEmail = el('input', { class: 'hc-input', type: 'email', autocomplete: 'email', placeholder: __('Your email', 'hilo-chat'), 'aria-label': __('Your email', 'hilo-chat'), maxlength: '190', required: true });
 	ui.hp = el('input', { class: 'hc-hp', type: 'text', name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true' });
 	ui.introError = el('p', { class: 'hc-error', role: 'alert' });
-	ui.introBtn = el('button', { class: 'hc-btn', type: 'submit' }, [el('span', { text: 'Enviar mensaje' }), el('span', { class: 'hc-btn-icon', html: ICON.send })]);
+	ui.introBtn = el('button', { class: 'hc-btn', type: 'submit' }, [el('span', { text: __('Send message', 'hilo-chat') }), el('span', { class: 'hc-btn-icon', html: ICON.send })]);
 	ui.offlineNote = el('p', { class: 'hc-note' });
 	ui.intro = el('form', { class: 'hc-intro', novalidate: true, onsubmit: onIntroSubmit }, [
 		ui.offlineNote,
 		ui.introMsg,
 		CFG.user ? null : el('div', { class: 'hc-row' }, [ui.introName, ui.introEmail]),
-		CFG.user ? el('p', { class: 'hc-signed', text: 'Escribes como ' + CFG.user.name + ' (' + CFG.user.email + ')' }) : el('p', { class: 'hc-privacy', text: 'Usaremos tu email solo para responderte si te vas antes.' }),
+		CFG.user ? el('p', { class: 'hc-signed', text: fmt(__('Writing as %1$s (%2$s)', 'hilo-chat'), CFG.user.name, CFG.user.email) }) : el('p', { class: 'hc-privacy', text: __('We will only use your email to reply if you leave before we answer.', 'hilo-chat') }),
 		ui.hp,
 		ui.introError,
 		ui.introBtn
@@ -154,10 +163,10 @@
 
 	// Composer.
 	ui.file = el('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp,image/gif,application/pdf', class: 'hc-file', onchange: onFile });
-	ui.text = el('textarea', { class: 'hc-compose-input', rows: '1', placeholder: 'Escribe un mensaje…', 'aria-label': 'Escribe un mensaje', maxlength: '2000', oninput: onComposeInput, onkeydown: onComposeKey });
-	ui.sendBtn = el('button', { class: 'hc-icon-btn hc-send', type: 'submit', 'aria-label': 'Enviar', html: ICON.send });
+	ui.text = el('textarea', { class: 'hc-compose-input', rows: '1', placeholder: __('Type a message…', 'hilo-chat'), 'aria-label': __('Type a message', 'hilo-chat'), maxlength: '2000', oninput: onComposeInput, onkeydown: onComposeKey });
+	ui.sendBtn = el('button', { class: 'hc-icon-btn hc-send', type: 'submit', 'aria-label': __('Send', 'hilo-chat'), html: ICON.send });
 	ui.composer = el('form', { class: 'hc-composer', onsubmit: onComposeSubmit }, [
-		el('button', { class: 'hc-icon-btn hc-attach', type: 'button', 'aria-label': 'Adjuntar imagen o PDF', html: ICON.clip, onclick: function () { ui.file.click(); } }),
+		el('button', { class: 'hc-icon-btn hc-attach', type: 'button', 'aria-label': __('Attach an image or PDF', 'hilo-chat'), html: ICON.clip, onclick: function () { ui.file.click(); } }),
 		ui.file, ui.text, ui.sendBtn
 	]);
 	ui.composeError = el('p', { class: 'hc-error hc-compose-error', role: 'alert' });
@@ -171,7 +180,7 @@
 			el('span', { class: 'hc-teaser-avatar', 'aria-hidden': 'true', text: (CFG.brand || 'C').trim().charAt(0).toUpperCase() }),
 			el('span', { class: 'hc-teaser-content' }, [el('span', { class: 'hc-teaser-from', text: CFG.team || CFG.brand || '' }), ui.teaserText])
 		]),
-		el('button', { class: 'hc-teaser-close', type: 'button', 'aria-label': 'Cerrar mensaje', html: ICON.close, onclick: function (e) { e.stopPropagation(); dismissTeaser(); } })
+		el('button', { class: 'hc-teaser-close', type: 'button', 'aria-label': __('Close message', 'hilo-chat'), html: ICON.close, onclick: function (e) { e.stopPropagation(); dismissTeaser(); } })
 	]);
 	ui.wrap = el('div', { class: 'hc-root' + (CFG.position === 'left' ? ' hc-left' : '') }, [ui.panel, ui.teaser, ui.launcher]);
 
@@ -203,7 +212,7 @@
 		}
 		if (st) {
 			ui.statusDot.className = 'hc-dot' + (st.online ? ' is-on' : '');
-			ui.statusText.textContent = agent ? (st.online ? 'En línea' : CFG.team) : (st.online ? st.statusText : 'Fuera de línea · te respondemos por email');
+			ui.statusText.textContent = agent ? (st.online ? __('Online', 'hilo-chat') : CFG.team) : (st.online ? st.statusText : __('Offline · we will reply by email', 'hilo-chat'));
 		} else {
 			ui.statusText.textContent = CFG.team || '';
 		}
@@ -217,11 +226,11 @@
 		if (!hasConv) {
 			var note = '';
 			if (st && !st.online) {
-				note = st.statusText + (st.nextOpening ? ' Volvemos ' + st.nextOpening + '.' : '');
+				note = st.statusText + (st.nextOpening ? ' ' + st.nextOpening : '');
 			}
 			ui.offlineNote.textContent = note;
 			ui.offlineNote.hidden = !note;
-			ui.introBtn.firstChild.textContent = st && !st.online ? 'Dejar mensaje' : 'Enviar mensaje';
+			ui.introBtn.firstChild.textContent = st && !st.online ? __('Leave a message', 'hilo-chat') : __('Send message', 'hilo-chat');
 			if (CFG.user) { ui.introName.value = CFG.user.name; ui.introEmail.value = CFG.user.email; }
 			else if (S.saved.name) { ui.introName.value = ui.introName.value || S.saved.name; ui.introEmail.value = ui.introEmail.value || S.saved.email || ''; }
 		}
@@ -229,7 +238,7 @@
 
 	function greetingNode() {
 		return el('div', { class: 'hc-msg hc-from-agent hc-greeting' }, [
-			el('div', { class: 'hc-bubble' }, [richText(CFG.greeting || '¡Hola! ¿En qué te podemos ayudar?')])
+			el('div', { class: 'hc-bubble' }, [richText(CFG.greeting || __('Hi! How can we help you?', 'hilo-chat'))])
 		]);
 	}
 
@@ -242,16 +251,16 @@
 		if (m.attachment) {
 			var a = m.attachment;
 			if (a.image) {
-				var img = el('img', { src: a.url, alt: a.name || 'Imagen', loading: 'lazy' });
+				var img = el('img', { src: a.url, alt: a.name || __('Image', 'hilo-chat'), loading: 'lazy' });
 				if (a.w && a.h) { img.width = a.w; img.height = a.h; }
 				bubble.appendChild(el('a', { class: 'hc-att-img', href: a.url, target: '_blank', rel: 'noopener' }, [img]));
 			} else {
-				bubble.appendChild(el('a', { class: 'hc-att-file', href: a.url, target: '_blank', rel: 'noopener' }, [el('span', { html: ICON.file }), el('span', { text: a.name || 'Archivo' })]));
+				bubble.appendChild(el('a', { class: 'hc-att-file', href: a.url, target: '_blank', rel: 'noopener' }, [el('span', { html: ICON.file }), el('span', { text: a.name || __('File', 'hilo-chat') })]));
 			}
-			if (m.local) bubble.appendChild(el('div', { class: 'hc-uploading', text: 'Subiendo…' }));
+			if (m.local) bubble.appendChild(el('div', { class: 'hc-uploading', text: __('Uploading…', 'hilo-chat') }));
 		}
 		if (m.body) bubble.appendChild(el('div', { class: 'hc-text' }, [richText(m.body)]));
-		var meta = el('div', { class: 'hc-meta' }, [m.local ? (m.failed ? 'No se envió' : 'Enviando…') : timeLabel(m.at)]);
+		var meta = el('div', { class: 'hc-meta' }, [m.local ? (m.failed ? __('Not sent', 'hilo-chat') : __('Sending…', 'hilo-chat')) : timeLabel(m.at)]);
 		return el('div', { class: 'hc-msg ' + (mine ? 'hc-from-me' : 'hc-from-agent') + (m.failed ? ' is-failed' : ''), 'data-id': m.id }, [bubble, meta]);
 	}
 
@@ -288,7 +297,7 @@
 				if (m.from === 'visitor' && !m.local) {
 					if (S.conv.agentReadId >= m.id) {
 						var n = ui.list.querySelector('[data-id="' + m.id + '"] .hc-meta');
-						if (n) n.appendChild(el('span', { class: 'hc-seen', text: ' · Visto' }));
+						if (n) n.appendChild(el('span', { class: 'hc-seen', text: ' · ' + __('Seen', 'hilo-chat') }));
 					}
 					break;
 				}
@@ -296,7 +305,7 @@
 			}
 		}
 		if (S.conv && S.conv.status === 'closed') {
-			ui.list.appendChild(el('div', { class: 'hc-system', text: 'Conversación resuelta. Si escribes de nuevo, la reabrimos.' }));
+			ui.list.appendChild(el('div', { class: 'hc-system', text: __('Conversation resolved. If you write again, we will reopen it.', 'hilo-chat') }));
 		}
 		S.seenReady = true;
 		ui.typing.classList.toggle('is-on', !!S.agentTyping);
@@ -307,7 +316,7 @@
 		var n = S.open ? 0 : S.unread;
 		ui.badge.textContent = n > 9 ? '9+' : (n ? String(n) : '');
 		ui.badge.classList.toggle('is-on', n > 0);
-		ui.launcher.setAttribute('aria-label', n ? 'Abrir chat, ' + n + ' mensajes nuevos' : 'Abrir chat');
+		ui.launcher.setAttribute('aria-label', n ? fmt(__('Open chat, %d new messages', 'hilo-chat'), n) : __('Open chat', 'hilo-chat'));
 	}
 
 	function render() {
@@ -330,7 +339,7 @@
 		S.open = open;
 		ui.wrap.classList.toggle('is-open', open);
 		ui.launcher.setAttribute('aria-expanded', String(open));
-		ui.launcher.setAttribute('aria-label', open ? 'Minimizar chat' : 'Abrir chat');
+		ui.launcher.setAttribute('aria-label', open ? __('Minimize chat', 'hilo-chat') : __('Open chat', 'hilo-chat'));
 		if (open) {
 			hideTeaser();
 			ui.panel.hidden = false;
@@ -404,6 +413,8 @@
 			if (r.status) S.status = r.status;
 			if (!r.conversation) {
 				if (S.saved.has) { S.saved.has = false; store(false, S.saved); }
+				// The conversation no longer exists (e.g. deleted): start fresh.
+				if (S.conv) { S.messages = []; S.lastId = 0; S.seen = {}; S.renderSig = ''; }
 				S.conv = null;
 				render();
 				return;
@@ -454,7 +465,7 @@
 		if (document.hidden && !titleTimer) {
 			originalTitle = document.title;
 			var flip = false;
-			titleTimer = setInterval(function () { flip = !flip; document.title = flip ? '💬 Nuevo mensaje' : originalTitle; }, 1200);
+			titleTimer = setInterval(function () { flip = !flip; document.title = flip ? '💬 ' + __('New message', 'hilo-chat') : originalTitle; }, 1200);
 		}
 	}
 	function restoreTitle() {
@@ -471,9 +482,9 @@
 		var name = (CFG.user ? CFG.user.name : ui.introName.value).trim();
 		var email = (CFG.user ? CFG.user.email : ui.introEmail.value).trim();
 		ui.introError.textContent = '';
-		if (!msg) { ui.introError.textContent = 'Escribe tu mensaje.'; ui.introMsg.focus(); return; }
-		if (!name) { ui.introError.textContent = 'Escribe tu nombre.'; ui.introName.focus(); return; }
-		if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { ui.introError.textContent = 'Escribe un email válido para poder responderte.'; ui.introEmail.focus(); return; }
+		if (!msg) { ui.introError.textContent = __('Please write your message.', 'hilo-chat'); ui.introMsg.focus(); return; }
+		if (!name) { ui.introError.textContent = __('Please enter your name.', 'hilo-chat'); ui.introName.focus(); return; }
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { ui.introError.textContent = __('Please enter a valid email so we can reply.', 'hilo-chat'); ui.introEmail.focus(); return; }
 
 		S.sending = true;
 		ui.introBtn.disabled = true;
@@ -488,14 +499,14 @@
 			mergeMessages(r.messages);
 			ui.introMsg.value = '';
 			if (S.status && !S.status.online) {
-				S.messages.push({ id: (S.lastId || 0) + 0.5, local: false, from: 'system', body: 'Recibimos tu mensaje. Te responderemos a ' + email + ' y también lo verás aquí.', at: Date.now() / 1000 });
+				S.messages.push({ id: (S.lastId || 0) + 0.5, local: false, from: 'system', body: fmt(__('We got your message. We will reply to %s and you will also see it here.', 'hilo-chat'), email), at: Date.now() / 1000 });
 			}
 			S.forceScroll = true;
 			render();
 			ui.text.focus({ preventScroll: true });
 			schedule();
 		}).catch(function (err) {
-			ui.introError.textContent = err.message || 'No pudimos enviar tu mensaje. Intenta de nuevo.';
+			ui.introError.textContent = err.message || __('We could not send your message. Please try again.', 'hilo-chat');
 		}).then(function () { S.sending = false; ui.introBtn.disabled = false; });
 	}
 
@@ -538,7 +549,7 @@
 			renderMessages();
 		}).catch(function (err) {
 			local.failed = true;
-			ui.composeError.textContent = err.message || 'No se pudo enviar.';
+			ui.composeError.textContent = err.message || __('Could not send.', 'hilo-chat');
 			ui.text.value = body;
 			S.messages = S.messages.filter(function (m) { return m !== local; });
 			renderMessages();
@@ -567,7 +578,7 @@
 		ui.file.value = '';
 		if (!file) return;
 		ui.composeError.textContent = '';
-		if (file.size > 15 * 1024 * 1024) { ui.composeError.textContent = 'El archivo es demasiado grande.'; return; }
+		if (file.size > 15 * 1024 * 1024) { ui.composeError.textContent = __('The file is too large.', 'hilo-chat'); return; }
 		var isImg = /^image\//.test(file.type);
 		var preview = isImg ? URL.createObjectURL(file) : '';
 		var local = { id: 'l' + Date.now(), local: true, from: 'visitor', body: '', at: Date.now() / 1000, attachment: { image: isImg, url: preview, name: file.name } };
@@ -585,7 +596,7 @@
 			renderMessages();
 		}).catch(function (err) {
 			S.messages = S.messages.filter(function (m) { return m !== local; });
-			ui.composeError.textContent = err.message || 'No se pudo subir el archivo.';
+			ui.composeError.textContent = err.message || __('The file could not be uploaded.', 'hilo-chat');
 			renderMessages();
 		}).then(function () { if (preview) setTimeout(function () { URL.revokeObjectURL(preview); }, 5000); });
 	}

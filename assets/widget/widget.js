@@ -93,7 +93,10 @@
 		sending: false,
 		pollTimer: null,
 		lastCtx: 0,
-		saved: store(true)
+		saved: store(true),
+		seen: {},
+		seenReady: false,
+		renderSig: ''
 	};
 
 	/* ------------------------------------------------------------------ *
@@ -243,7 +246,16 @@
 		return el('div', { class: 'hc-msg ' + (mine ? 'hc-from-me' : 'hc-from-agent') + (m.failed ? ' is-failed' : ''), 'data-id': m.id }, [bubble, meta]);
 	}
 
+	function renderSignature() {
+		return S.messages.map(function (m) { return m.id + (m.local ? 'l' : '') + (m.failed ? 'f' : ''); }).join(',') +
+			'|' + (S.conv ? S.conv.agentReadId + S.conv.status : '-') + '|' + (S.agentTyping ? 1 : 0);
+	}
+
 	function renderMessages() {
+		// Skip the rebuild when nothing changed (polling runs every few seconds).
+		var sig = renderSignature();
+		if (sig === S.renderSig && !S.forceScroll) return;
+		S.renderSig = sig;
 		var nearBottom = ui.scroller.scrollHeight - ui.scroller.scrollTop - ui.scroller.clientHeight < 80;
 		ui.list.textContent = '';
 		ui.list.appendChild(greetingNode());
@@ -255,6 +267,9 @@
 				node.insertBefore(el('div', { class: 'hc-sender', text: m.agent.name }), node.firstChild);
 			}
 			lastAgentSender = m.from === 'agent' && m.agent ? m.agent.name : null;
+			// Animate only messages that appear for the first time.
+			if (S.seenReady && !S.seen[m.id]) node.classList.add('is-new');
+			S.seen[m.id] = true;
 			ui.list.appendChild(node);
 		});
 		// Read receipt under the last visitor message.
@@ -274,6 +289,7 @@
 		if (S.conv && S.conv.status === 'closed') {
 			ui.list.appendChild(el('div', { class: 'hc-system', text: 'Conversación resuelta. Si escribes de nuevo, la reabrimos.' }));
 		}
+		S.seenReady = true;
 		ui.typing.classList.toggle('is-on', !!S.agentTyping);
 		if (nearBottom || S.forceScroll) { scrollBottom(); S.forceScroll = false; }
 	}
@@ -356,7 +372,7 @@
 			for (var i = 0; i < S.messages.length; i++) {
 				if (S.messages[i].local && S.messages[i].from === m.from && S.messages[i].body === m.body && !S.messages[i].failed) { idx = i; break; }
 			}
-			if (idx > -1) S.messages.splice(idx, 1, m); else S.messages.push(m);
+			if (idx > -1) { S.seen[m.id] = true; S.messages.splice(idx, 1, m); } else S.messages.push(m);
 			if (m.id > S.lastId) S.lastId = m.id;
 			added = true;
 		});
@@ -554,6 +570,7 @@
 			return api('POST', 'visitor/upload', fd, true);
 		}).then(function (r) {
 			S.messages = S.messages.filter(function (m) { return m !== local; });
+			S.seen[r.message.id] = true;
 			mergeMessages([r.message]);
 			renderMessages();
 		}).catch(function (err) {

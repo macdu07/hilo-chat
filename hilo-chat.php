@@ -7,7 +7,7 @@
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
  * Author:            Mauricio Correa
- * Author URI:        https://maurouix.com/
+ * Author URI:        https://mauriciocorread.com/
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       hilo-chat

@@ -18,11 +18,17 @@ class HILO_Schedule {
 	 * @return bool
 	 */
 	public static function is_open_now() {
+		if ( HILO_Settings::get( 'always_open' ) ) {
+			return true;
+		}
 		$now   = new DateTimeImmutable( 'now', wp_timezone() );
 		$hours = HILO_Settings::get( 'hours', array() );
 		$day   = (int) $now->format( 'w' );
 		if ( empty( $hours[ $day ]['enabled'] ) ) {
 			return false;
+		}
+		if ( ! empty( $hours[ $day ]['allday'] ) ) {
+			return true;
 		}
 		$current = $now->format( 'H:i' );
 		$start   = isset( $hours[ $day ]['start'] ) ? $hours[ $day ]['start'] : '00:00';
@@ -36,6 +42,9 @@ class HILO_Schedule {
 	 * @return string
 	 */
 	public static function next_opening_text() {
+		if ( HILO_Settings::get( 'always_open' ) ) {
+			return '';
+		}
 		$hours = HILO_Settings::get( 'hours', array() );
 		$now   = new DateTimeImmutable( 'now', wp_timezone() );
 		$names = array( 'domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado' );
@@ -46,9 +55,12 @@ class HILO_Schedule {
 			if ( empty( $hours[ $day ]['enabled'] ) ) {
 				continue;
 			}
-			$start = $hours[ $day ]['start'];
+			$start = ! empty( $hours[ $day ]['allday'] ) ? '00:00' : $hours[ $day ]['start'];
 			if ( 0 === $i && $now->format( 'H:i' ) >= $start ) {
 				continue;
+			}
+			if ( ! empty( $hours[ $day ]['allday'] ) ) {
+				return 1 === $i ? 'mañana' : 'el ' . $names[ $day ];
 			}
 			if ( 0 === $i ) {
 				return 'hoy a las ' . $start;

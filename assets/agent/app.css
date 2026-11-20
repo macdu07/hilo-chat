@@ -201,7 +201,8 @@ a { color: var(--accent); }
 .messages { display: flex; flex-direction: column; gap: 3px; max-width: 820px; margin: 0 auto; }
 .loading-row { text-align: center; color: var(--muted); font-size: 13px; padding: 20px; }
 .day { align-self: center; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface); border: 1px solid var(--line); padding: 3px 10px; border-radius: 999px; margin: 14px 0 8px; text-transform: capitalize; }
-.msg { display: flex; flex-direction: column; max-width: min(78%, 560px); animation: rise .2s ease; }
+.msg { display: flex; flex-direction: column; max-width: min(78%, 560px); }
+.msg.is-new { animation: rise .25s ease both; }
 @keyframes rise { from { opacity: 0; transform: translateY(4px); } }
 .msg.in { align-self: flex-start; }
 .msg.out { align-self: flex-end; align-items: flex-end; }

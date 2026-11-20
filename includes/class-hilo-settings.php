@@ -50,6 +50,7 @@ class HILO_Settings {
 			'hide_on_checkout' => true,
 			'position'         => 'right',
 			'retention_days'   => 180,
+			'always_open'      => false,
 			'push_subject'     => get_option( 'admin_email' ),
 			'hours'            => array(
 				1 => $day,

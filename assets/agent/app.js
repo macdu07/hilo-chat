@@ -428,6 +428,11 @@
 
 	function renderMessages(forceBottom) {
 		if (!R.messages) return;
+		var T = S.thread;
+		var sig = T.id + ':' + T.messages.map(function (m) { return m.id + (m.local ? 'l' : ''); }).join(',') + '|' + T.visitorRead + '|' + (T.typing ? 1 : 0);
+		if (sig === T.renderSig && !forceBottom) return;
+		T.renderSig = sig;
+		T.seen = T.seen || {};
 		var sc = R.scroller;
 		var near = sc.scrollHeight - sc.scrollTop - sc.clientHeight < 120;
 		R.messages.textContent = '';
@@ -435,13 +440,17 @@
 		S.thread.messages.forEach(function (m) {
 			var dl = dayLabel(m.at);
 			if (dl !== lastDay) { R.messages.appendChild(el('div', { class: 'day', text: dl })); lastDay = dl; }
-			R.messages.appendChild(messageNode(m));
+			var node = messageNode(m);
+			if (T.seenReady && !T.seen[m.id]) node.classList.add('is-new');
+			T.seen[m.id] = true;
+			R.messages.appendChild(node);
 			if (m.from === 'agent' && !m.local) lastOutId = m.id;
 		});
 		if (lastOutId && S.thread.visitorRead >= lastOutId) {
 			var n = R.messages.querySelector('[data-id="' + lastOutId + '"] .meta');
 			if (n) n.appendChild(el('span', { class: 'seen', text: ' · Visto' }));
 		}
+		if (T.messages.length) T.seenReady = true;
 		R.typing.hidden = !S.thread.typing;
 		if (forceBottom || near) requestAnimationFrame(function () { sc.scrollTop = sc.scrollHeight; });
 	}
@@ -458,7 +467,7 @@
 				var x = S.thread.messages[i];
 				if (x.local && x.from === m.from && x.body === m.body) { idx = i; break; }
 			}
-			if (idx > -1) S.thread.messages.splice(idx, 1, m); else S.thread.messages.push(m);
+			if (idx > -1) { (S.thread.seen = S.thread.seen || {})[m.id] = true; S.thread.messages.splice(idx, 1, m); } else S.thread.messages.push(m);
 			if (m.id > S.thread.lastId) S.thread.lastId = m.id;
 			added = true;
 		});

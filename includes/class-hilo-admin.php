@@ -83,12 +83,14 @@ class HILO_Admin {
 			'app_slug'         => sanitize_title( $in['app_slug'] ?? '' ) ?: $defaults['app_slug'],
 			'push_subject'     => sanitize_email( $in['push_subject'] ?? '' ) ?: get_option( 'admin_email' ),
 			'retention_days'   => max( 0, absint( $in['retention_days'] ?? 180 ) ),
+			'always_open'      => ! empty( $in['always_open'] ),
 			'hours'            => array(),
 		);
 		for ( $d = 0; $d < 7; $d++ ) {
 			$day                 = isset( $in['hours'][ $d ] ) ? (array) $in['hours'][ $d ] : array();
 			$s['hours'][ $d ]    = array(
 				'enabled' => ! empty( $day['enabled'] ),
+				'allday'  => ! empty( $day['allday'] ),
 				'start'   => self::time( $day['start'] ?? '09:00', '09:00' ),
 				'end'     => self::time( $day['end'] ?? '18:00', '18:00' ),
 			);
@@ -127,6 +129,8 @@ class HILO_Admin {
 				.hilo-admin .hilo-card h2{margin-top:0;font-size:15px}
 				.hilo-admin .form-table th{width:210px}
 				.hilo-admin .hilo-hours td{padding:6px 10px 6px 0}
+				.hilo-admin .hilo-hours.is-disabled{opacity:.45;pointer-events:none}
+				.hilo-admin .hilo-hours tr.is-allday .hilo-time{opacity:.35;pointer-events:none}
 				.hilo-admin .hilo-agent{display:flex;align-items:center;gap:10px;padding:6px 0}
 				.hilo-admin .hilo-agent img{width:28px;height:28px;border-radius:50%}
 				.hilo-admin .hilo-dot{width:8px;height:8px;border-radius:50%;background:#c3c4c7;display:inline-block}
@@ -171,13 +175,15 @@ class HILO_Admin {
 				<div class="hilo-card">
 					<h2>Horario de atención</h2>
 					<p class="description">Zona horaria del sitio: <?php echo esc_html( wp_timezone_string() ); ?>. Fuera de horario, o si no hay agentes disponibles, el widget invita a dejar un mensaje y la respuesta llega por email.</p>
-					<table class="hilo-hours">
+					<p><label><input type="checkbox" name="always_open" value="1" id="hilo-always" <?php checked( ! empty( $s['always_open'] ) ); ?>> <strong>Atención 24 horas, todos los días</strong> (ignora el horario de abajo)</label></p>
+					<table class="hilo-hours" id="hilo-hours">
 						<?php foreach ( $days as $d => $label ) : $h = $s['hours'][ $d ] ?? array( 'enabled' => false, 'start' => '09:00', 'end' => '18:00' ); ?>
 							<tr>
 								<td style="width:110px"><label><input type="checkbox" name="hours[<?php echo (int) $d; ?>][enabled]" value="1" <?php checked( ! empty( $h['enabled'] ) ); ?>> <?php echo esc_html( $label ); ?></label></td>
-								<td><input type="time" name="hours[<?php echo (int) $d; ?>][start]" value="<?php echo esc_attr( $h['start'] ); ?>"></td>
-								<td>a</td>
-								<td><input type="time" name="hours[<?php echo (int) $d; ?>][end]" value="<?php echo esc_attr( $h['end'] ); ?>"></td>
+								<td><label><input type="checkbox" class="hilo-allday" name="hours[<?php echo (int) $d; ?>][allday]" value="1" <?php checked( ! empty( $h['allday'] ) ); ?>> 24 h</label></td>
+								<td class="hilo-time"><input type="time" name="hours[<?php echo (int) $d; ?>][start]" value="<?php echo esc_attr( $h['start'] ); ?>"></td>
+								<td class="hilo-time">a</td>
+								<td class="hilo-time"><input type="time" name="hours[<?php echo (int) $d; ?>][end]" value="<?php echo esc_attr( $h['end'] ); ?>"></td>
 							</tr>
 						<?php endforeach; ?>
 					</table>
@@ -243,6 +249,9 @@ class HILO_Admin {
 				frame.open();
 			});
 			reset.addEventListener('click',function(){id.value=0;img.src=def;});
+			var always=document.getElementById('hilo-always'),table=document.getElementById('hilo-hours');
+			function syncHours(){table.classList.toggle('is-disabled',always.checked);table.querySelectorAll('tr').forEach(function(tr){var c=tr.querySelector('.hilo-allday');tr.classList.toggle('is-allday',!!(c&&c.checked));});}
+			always.addEventListener('change',syncHours);table.addEventListener('change',syncHours);syncHours();
 		})();
 		</script>
 		<?php

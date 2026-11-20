@@ -6,7 +6,7 @@ Chat de soporte en vivo para WooCommerce, sin servicios externos:
 - **Panel de agentes instalable (PWA)** en `/{ruta}/` (por defecto `/chat-agentes/`), para celular y escritorio, con **notificaciones Web Push** cifradas (VAPID + aes128gcm, implementadas con openssl; no requiere Composer).
 - Varios agentes con cola **Sin asignar → Tomar / Transferir / Resolver**.
 - **Contexto WooCommerce**: página actual, recorrido, carrito y últimos pedidos (compatible con HPOS).
-- **Respuestas rápidas** (`/atajo` en el compositor, admite `{nombre}`).
+- **Respuestas rápidas** (`/atajo` en el compositor, admite `{name}` para el nombre del cliente).
 - **Horario de atención** (también 24/7 o 24 h por día) y respuesta por **email** cuando el cliente ya se fue (con enlace para retomar el chat).
 - **Burbuja de saludo** junto al botón, una vez por visita.
 - **Eliminar conversaciones resueltas**, una a una desde la app o todas de una vez (gestores de tienda), además de la purga automática.
